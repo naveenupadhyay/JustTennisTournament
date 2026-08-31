@@ -36,6 +36,7 @@ export default function TournamentClient() {
   const groupMatches = tournament.matches.filter((match) => match.group === group);
   const bracketMatches = tournament.matches.filter((match) => !match.group);
   const playedCount = tournament.matches.filter((match) => match.group && match.status === 'played').length;
+  const groupMatchCount = groupMatches.length;
   const detail = useMemo<DetailMatch | null>(() => {
     if (!detailId) return null;
     const match = tournament.matches.find((item) => item.id === detailId);
@@ -113,19 +114,23 @@ export default function TournamentClient() {
           <section className="matches-section">
             <div className="section-head">
               <h2>Group {group} · round robin</h2>
-              <span>15 matches · tap a match for the score sheet</span>
+              <span>{groupMatchCount}/15 matches added · tap a match for the score sheet</span>
             </div>
             <div className="match-list">
-              {groupMatches.map((match) => (
-                <button className={detailId === match.id ? 'match-row selected' : 'match-row'} key={match.id} onClick={() => setDetailId(match.id)}>
-                  <span>{match.slot}</span>
-                  <span>
-                    <strong className={match.winner === 0 ? 'winner' : ''}><span>{playerFlag(tournament, match.a)}</span>{playerName(tournament, match.a)}</strong>
-                    <strong className={match.winner === 1 ? 'winner' : ''}><span>{playerFlag(tournament, match.b)}</span>{playerName(tournament, match.b)}</strong>
-                  </span>
-                  <span>{scoreText(match)}</span>
-                </button>
-              ))}
+              {groupMatches.length > 0 ? (
+                groupMatches.map((match) => (
+                  <button className={detailId === match.id ? 'match-row selected' : 'match-row'} key={match.id} onClick={() => setDetailId(match.id)}>
+                    <span>{match.slot}</span>
+                    <span>
+                      <strong className={match.winner === 0 ? 'winner' : ''}><span>{playerFlag(tournament, match.a)}</span>{playerName(tournament, match.a)}</strong>
+                      <strong className={match.winner === 1 ? 'winner' : ''}><span>{playerFlag(tournament, match.b)}</span>{playerName(tournament, match.b)}</strong>
+                    </span>
+                    <span>{scoreText(match)}</span>
+                  </button>
+                ))
+              ) : (
+                <p className="empty-state">No Group {group} matches added yet.</p>
+              )}
             </div>
           </section>
         </section>
@@ -157,14 +162,18 @@ function Round({ title, when, pad, matches, detailId, open }: { title: string; w
     <section>
       <div className="round-head"><span>{title}</span><span>{when}</span></div>
       <div className="round-matches" style={{ paddingTop: pad }}>
-        {matches.map((match) => (
-          <button className={detailId === match.id ? 'bracket-card selected' : 'bracket-card'} key={match.id} onClick={() => open(match.id)}>
-            <div><strong className={match.aPlaceholder ? 'placeholder' : ''}>{match.aResolved}</strong><span>{match.status === 'played' ? setTotals(match)[0] : '-'}</span></div>
-            <hr />
-            <div><strong className={match.bPlaceholder ? 'placeholder' : ''}>{match.bResolved}</strong><span>{match.status === 'played' ? setTotals(match)[1] : '-'}</span></div>
-            <p>{match.day} {match.when} · {match.court}</p>
-          </button>
-        ))}
+        {matches.length > 0 ? (
+          matches.map((match) => (
+            <button className={detailId === match.id ? 'bracket-card selected' : 'bracket-card'} key={match.id} onClick={() => open(match.id)}>
+              <div><strong className={match.aPlaceholder ? 'placeholder' : ''}>{match.aResolved}</strong><span>{match.status === 'played' ? setTotals(match)[0] : '-'}</span></div>
+              <hr />
+              <div><strong className={match.bPlaceholder ? 'placeholder' : ''}>{match.bResolved}</strong><span>{match.status === 'played' ? setTotals(match)[1] : '-'}</span></div>
+              <p>{match.day} {match.when} · {match.court}</p>
+            </button>
+          ))
+        ) : (
+          <p className="empty-state compact">No matches added.</p>
+        )}
       </div>
     </section>
   );

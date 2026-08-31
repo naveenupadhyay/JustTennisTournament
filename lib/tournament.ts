@@ -144,64 +144,6 @@ export const defaultTournament: Tournament = (() => {
     }),
   );
 
-  const matches: Match[] = [];
-  groups.forEach((group, groupIndex) => {
-    const groupPlayers = players.filter((player) => player.group === group);
-    let n = 0;
-    for (let i = 0; i < 6; i += 1) {
-      for (let j = i + 1; j < 6; j += 1) {
-        const result = playMatch(groupIndex * 977 + i * 61 + j * 13 + 7, groupPlayers[i].seed, groupPlayers[j].seed);
-        n += 1;
-        matches.push({
-          id: `G${group}${n}`,
-          group,
-          stage: 'round-robin',
-          slot: `RR ${String(n).padStart(2, '0')}`,
-          a: groupPlayers[i].id,
-          b: groupPlayers[j].id,
-          sets: result.sets,
-          finalScore: result.sets.map(([a, b]) => `${a}-${b}`).join('  '),
-          pointsA: null,
-          pointsB: null,
-          winner: result.winner as 0 | 1,
-          mins: result.mins,
-          court: courts[(n + groupIndex) % 3],
-          day: days[n % 4],
-          when: '',
-          status: 'played',
-        });
-      }
-    }
-  });
-
-  [
-    ['QF1', 'Quarter-final 1', 'A1', 'B2', 'Centre Court', 'Sat 13 Sep', '10:00'],
-    ['QF2', 'Quarter-final 2', 'C1', 'D2', 'Court 1', 'Sat 13 Sep', '10:00'],
-    ['QF3', 'Quarter-final 3', 'B1', 'A2', 'Centre Court', 'Sat 13 Sep', '13:00'],
-    ['QF4', 'Quarter-final 4', 'D1', 'C2', 'Court 1', 'Sat 13 Sep', '13:00'],
-    ['SF1', 'Semi-final 1', 'Winner QF1', 'Winner QF2', 'Centre Court', 'Sun 14 Sep', '11:00'],
-    ['SF2', 'Semi-final 2', 'Winner QF3', 'Winner QF4', 'Centre Court', 'Sun 14 Sep', '11:00'],
-    ['F', 'Final', 'Winner SF1', 'Winner SF2', 'Centre Court', 'Sun 14 Sep', '16:00'],
-  ].forEach(([id, slot, a, b, court, day, when]) => {
-    matches.push({
-      id,
-      stage: id.startsWith('QF') ? 'quarter-final' : id.startsWith('SF') ? 'semi-final' : 'final',
-      slot,
-      a,
-      b,
-      sets: [[null, null], [null, null], [null, null]],
-      finalScore: '',
-      pointsA: null,
-      pointsB: null,
-      winner: null,
-      mins: null,
-      court,
-      day,
-      when,
-      status: 'scheduled',
-    });
-  });
-
   return {
     club: 'JUST Tennis League',
     event: 'US Open',
@@ -212,7 +154,7 @@ export const defaultTournament: Tournament = (() => {
     championMeta: 'decided Sun 14 Sep · Centre Court',
     accentColor: 'oklch(0.58 0.13 45)',
     players,
-    matches,
+    matches: [],
   };
 })();
 

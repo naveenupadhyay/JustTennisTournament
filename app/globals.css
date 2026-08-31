@@ -637,6 +637,20 @@ h1 {
   line-height: 1.6;
 }
 
+.empty-state {
+  margin: 0;
+  padding: 18px 16px;
+  border: 1px dashed var(--line);
+  border-radius: 3px;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.empty-state.compact {
+  padding: 14px;
+}
+
 .admin-shell {
   max-width: 1240px;
   margin: 0 auto;

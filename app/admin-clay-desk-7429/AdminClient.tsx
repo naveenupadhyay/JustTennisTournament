@@ -254,13 +254,17 @@ export default function AdminClient() {
       <section className="admin-section">
         <h2>Saved matches</h2>
         <div className="saved-matches">
-          {tournament.matches.map((match) => (
-            <article key={match.id}>
-              <strong>{match.slot}</strong>
-              <span>{playerName(tournament, match.a)} v {playerName(tournament, match.b)}</span>
-              <span>{match.finalScore || (match.pointsA !== null && match.pointsB !== null ? `${match.pointsA}-${match.pointsB}` : 'Scheduled')}</span>
-            </article>
-          ))}
+          {tournament.matches.length > 0 ? (
+            tournament.matches.map((match) => (
+              <article key={match.id}>
+                <strong>{match.slot}</strong>
+                <span>{playerName(tournament, match.a)} v {playerName(tournament, match.b)}</span>
+                <span>{match.finalScore || (match.pointsA !== null && match.pointsB !== null ? `${match.pointsA}-${match.pointsB}` : 'Scheduled')}</span>
+              </article>
+            ))
+          ) : (
+            <p className="empty-state">No matches added yet.</p>
+          )}
         </div>
       </section>
     </main>

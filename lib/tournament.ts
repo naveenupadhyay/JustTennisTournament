@@ -58,6 +58,8 @@ export type BracketMatch = Match & {
   bPlaceholder: boolean;
 };
 
+const emptySets: Match['sets'] = [[null, null], [null, null], [null, null]];
+
 const names: Record<GroupId, string[]> = {
   A: ['Mateo Alvarez', 'Ravi Deshpande', 'Jonas Brenner', 'Hugo Lindqvist', 'Tomas Varga', 'Ade Okonkwo'],
   B: ['Elias Moreau', 'Kenji Tanabe', 'Samir Haddad', 'Nils Berger', 'Owen Pritchard', 'Diego Salas'],
@@ -244,12 +246,29 @@ export function matchWinner(match: Match): 0 | 1 | null {
 
 export function scoreText(match: Match) {
   if (match.status !== 'played') return '-';
-  if (match.finalScore.trim()) return match.finalScore;
+  if ((match.finalScore ?? '').trim()) return match.finalScore;
   if (match.pointsA !== null && match.pointsB !== null) return `${match.pointsA}-${match.pointsB}`;
   return match.sets
     .filter(([a, b]) => a !== null && b !== null)
     .map(([a, b]) => `${a}-${b}`)
     .join('  ');
+}
+
+function pairKey(a: string, b: string) {
+  return [a, b].sort().join('::');
+}
+
+export function groupStageMatchesFor(tournament: Tournament, group: GroupId) {
+  return tournament.matches.filter((match) => match.stage === 'round-robin' && match.group === group);
+}
+
+export function groupStageMatchCount(tournament: Tournament, group: GroupId, playerId: string) {
+  return groupStageMatchesFor(tournament, group).filter((match) => match.a === playerId || match.b === playerId).length;
+}
+
+export function groupStagePairExists(tournament: Tournament, group: GroupId, a: string, b: string) {
+  const target = pairKey(a, b);
+  return groupStageMatchesFor(tournament, group).some((match) => pairKey(match.a, match.b) === target);
 }
 
 export function setTotals(match: Match) {
@@ -350,8 +369,10 @@ export function sanitizeTournament(input: Tournament): Tournament {
       : defaultTournament.players,
     matches: Array.isArray(input.matches)
       ? input.matches.map((match) => {
+          const sets: Match['sets'] = Array.isArray(match.sets) ? match.sets : emptySets;
           const next = {
             ...match,
+            sets,
             finalScore: match.finalScore || '',
             pointsA: match.pointsA ?? null,
             pointsB: match.pointsB ?? null,

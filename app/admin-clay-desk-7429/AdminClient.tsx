@@ -1,7 +1,15 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { GroupId, Match, Tournament, defaultTournament, playerName } from '@/lib/tournament';
+import {
+  GroupId,
+  Match,
+  Tournament,
+  defaultTournament,
+  groupStageMatchCount,
+  groupStagePairExists,
+  playerName,
+} from '@/lib/tournament';
 
 const groups: GroupId[] = ['A', 'B', 'C', 'D'];
 const stages: Match['stage'][] = ['round-robin', 'quarter-final', 'semi-final', 'final'];
@@ -81,6 +89,25 @@ export default function AdminClient() {
       setMessage('Choose two different players before adding the match.');
       return;
     }
+    if (newMatch.stage === 'round-robin') {
+      const playerA = tournament.players.find((player) => player.id === newMatch.a);
+      const playerB = tournament.players.find((player) => player.id === newMatch.b);
+      if (playerA?.group !== newMatch.group || playerB?.group !== newMatch.group) {
+        setMessage(`Choose two players from Group ${newMatch.group}.`);
+        return;
+      }
+      if (groupStagePairExists(tournament, newMatch.group, newMatch.a, newMatch.b)) {
+        setMessage(`${playerName(tournament, newMatch.a)} and ${playerName(tournament, newMatch.b)} already have a Group ${newMatch.group} match. Each pair plays once.`);
+        return;
+      }
+      const playerACount = groupStageMatchCount(tournament, newMatch.group, newMatch.a);
+      const playerBCount = groupStageMatchCount(tournament, newMatch.group, newMatch.b);
+      if (playerACount >= 5 || playerBCount >= 5) {
+        const cappedPlayer = playerACount >= 5 ? newMatch.a : newMatch.b;
+        setMessage(`${playerName(tournament, cappedPlayer)} already has 5 group-stage matches. A group player cannot play more than 5.`);
+        return;
+      }
+    }
     const pointsA = newMatch.pointsA === '' ? null : Number(newMatch.pointsA);
     const pointsB = newMatch.pointsB === '' ? null : Number(newMatch.pointsB);
     const match: Match = {
@@ -106,6 +133,23 @@ export default function AdminClient() {
     setMessage('Match added. Use Save all changes to update the public site.');
   }
 
+  function groupRuleNotice() {
+    if (newMatch.stage !== 'round-robin') return null;
+    if (!newMatch.a || !newMatch.b || newMatch.a === newMatch.b) {
+      return 'Group stage rule: each player can have 5 matches, one against every other player in the group.';
+    }
+    if (groupStagePairExists(tournament, newMatch.group, newMatch.a, newMatch.b)) {
+      return `${playerName(tournament, newMatch.a)} and ${playerName(tournament, newMatch.b)} are already paired in Group ${newMatch.group}.`;
+    }
+    const playerACount = groupStageMatchCount(tournament, newMatch.group, newMatch.a);
+    const playerBCount = groupStageMatchCount(tournament, newMatch.group, newMatch.b);
+    if (playerACount >= 5 || playerBCount >= 5) {
+      const cappedPlayer = playerACount >= 5 ? newMatch.a : newMatch.b;
+      return `${playerName(tournament, cappedPlayer)} is already at 5 group matches.`;
+    }
+    return `${playerName(tournament, newMatch.a)}: ${playerACount}/5 group matches. ${playerName(tournament, newMatch.b)}: ${playerBCount}/5 group matches.`;
+  }
+
   async function save() {
     setSaving(true);
     setMessage('Saving changes');
@@ -119,6 +163,16 @@ export default function AdminClient() {
     setSaving(false);
     setMessage('Saved. The public site is updated.');
   }
+
+  const activeGroupRuleNotice = groupRuleNotice();
+  const activeGroupRuleWarning =
+    newMatch.stage === 'round-robin' &&
+    !!newMatch.a &&
+    !!newMatch.b &&
+    newMatch.a !== newMatch.b &&
+    (groupStagePairExists(tournament, newMatch.group, newMatch.a, newMatch.b) ||
+      groupStageMatchCount(tournament, newMatch.group, newMatch.a) >= 5 ||
+      groupStageMatchCount(tournament, newMatch.group, newMatch.b) >= 5);
 
   return (
     <main className="admin-shell">
@@ -182,10 +236,11 @@ export default function AdminClient() {
       <section className="admin-section">
         <h2>Add match</h2>
         <div className="add-match-panel">
-          <label><span>Stage</span><select value={newMatch.stage} onChange={(event) => setNewMatch((current) => ({ ...current, stage: event.target.value as Match['stage'] }))}>{stages.map((stage) => <option key={stage} value={stage}>{stageLabel(stage)}</option>)}</select></label>
-          {newMatch.stage === 'round-robin' ? <label><span>Group</span><select value={newMatch.group} onChange={(event) => setNewMatch((current) => ({ ...current, group: event.target.value as GroupId }))}>{groups.map((group) => <option key={group}>{group}</option>)}</select></label> : null}
+          <label><span>Stage</span><select value={newMatch.stage} onChange={(event) => setNewMatch((current) => ({ ...current, stage: event.target.value as Match['stage'], a: '', b: '' }))}>{stages.map((stage) => <option key={stage} value={stage}>{stageLabel(stage)}</option>)}</select></label>
+          {newMatch.stage === 'round-robin' ? <label><span>Group</span><select value={newMatch.group} onChange={(event) => setNewMatch((current) => ({ ...current, group: event.target.value as GroupId, a: '', b: '' }))}>{groups.map((group) => <option key={group}>{group}</option>)}</select></label> : null}
           <PlayerSelect label="Player A" value={newMatch.a} tournament={tournament} group={newMatch.stage === 'round-robin' ? newMatch.group : null} onChange={(value) => setNewMatch((current) => ({ ...current, a: value }))} />
           <PlayerSelect label="Player B" value={newMatch.b} tournament={tournament} group={newMatch.stage === 'round-robin' ? newMatch.group : null} onChange={(value) => setNewMatch((current) => ({ ...current, b: value }))} />
+          {activeGroupRuleNotice ? <p className={activeGroupRuleWarning ? 'rule-warning' : 'rule-note'}>{activeGroupRuleNotice}</p> : null}
           <label><span>Final score</span><input placeholder="6-4  7-5" value={newMatch.finalScore} onChange={(event) => setNewMatch((current) => ({ ...current, finalScore: event.target.value }))} /></label>
           <label><span>Points A</span><input type="number" min="0" value={newMatch.pointsA} onChange={(event) => setNewMatch((current) => ({ ...current, pointsA: event.target.value }))} /></label>
           <label><span>Points B</span><input type="number" min="0" value={newMatch.pointsB} onChange={(event) => setNewMatch((current) => ({ ...current, pointsB: event.target.value }))} /></label>
@@ -224,7 +279,15 @@ function PlayerSelect({ label, value, tournament, group, onChange }: { label: st
       <select value={value} onChange={(event) => onChange(event.target.value)}>
         <option value="">Select player</option>
         {value && !players.some((player) => player.id === value) ? <option value={value}>{value}</option> : null}
-        {players.map((player) => <option key={player.id} value={player.id}>{player.flag} {player.name}</option>)}
+        {players.map((player) => {
+          const groupCount = group ? groupStageMatchCount(tournament, group, player.id) : null;
+          const isFull = groupCount !== null && groupCount >= 5 && value !== player.id;
+          return (
+            <option disabled={isFull} key={player.id} value={player.id}>
+              {player.flag} {player.name}{groupCount !== null ? ` (${groupCount}/5)` : ''}
+            </option>
+          );
+        })}
       </select>
     </label>
   );

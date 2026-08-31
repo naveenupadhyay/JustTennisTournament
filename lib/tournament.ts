@@ -67,32 +67,12 @@ const names: Record<GroupId, string[]> = {
   D: ['Andrés Pinto', 'Ilya Sokolov', 'Felix Wu', 'Gabriel Nunes', 'Sean Byrne', 'Amir Farsi'],
 };
 
-const countries = [
-  ['Spain', '🇪🇸'],
-  ['India', '🇮🇳'],
-  ['Germany', '🇩🇪'],
-  ['Sweden', '🇸🇪'],
-  ['Serbia', '🇷🇸'],
-  ['Nigeria', '🇳🇬'],
-  ['France', '🇫🇷'],
-  ['Japan', '🇯🇵'],
-  ['Lebanon', '🇱🇧'],
-  ['Austria', '🇦🇹'],
-  ['United Kingdom', '🇬🇧'],
-  ['Argentina', '🇦🇷'],
-  ['Italy', '🇮🇹'],
-  ['India', '🇮🇳'],
-  ['Netherlands', '🇳🇱'],
-  ['Morocco', '🇲🇦'],
-  ['Ireland', '🇮🇪'],
-  ['Poland', '🇵🇱'],
-  ['Chile', '🇨🇱'],
-  ['Russia', '🇷🇺'],
-  ['China', '🇨🇳'],
-  ['Brazil', '🇧🇷'],
-  ['Ireland', '🇮🇪'],
-  ['Iran', '🇮🇷'],
-];
+const countries: Record<GroupId, Array<[string, string]>> = {
+  A: [['Spain', '🇪🇸'], ['India', '🇮🇳'], ['Germany', '🇩🇪'], ['Sweden', '🇸🇪'], ['Serbia', '🇷🇸'], ['Nigeria', '🇳🇬']],
+  B: [['France', '🇫🇷'], ['Japan', '🇯🇵'], ['Lebanon', '🇱🇧'], ['Austria', '🇦🇹'], ['United Kingdom', '🇬🇧'], ['Argentina', '🇦🇷']],
+  C: [['Italy', '🇮🇹'], ['India', '🇮🇳'], ['Netherlands', '🇳🇱'], ['Morocco', '🇲🇦'], ['Ireland', '🇮🇪'], ['Poland', '🇵🇱']],
+  D: [['Chile', '🇨🇱'], ['Russia', '🇷🇺'], ['China', '🇨🇳'], ['Brazil', '🇧🇷'], ['Ireland', '🇮🇪'], ['Iran', '🇮🇷']],
+};
 
 const courts = ['Court 1', 'Court 2', 'Court 3', 'Centre Court'];
 const days = ['Sat 30 Aug', 'Sun 31 Aug', 'Sat 6 Sep', 'Sun 7 Sep'];
@@ -132,14 +112,14 @@ export const defaultTournament: Tournament = (() => {
   const groups = Object.keys(names) as GroupId[];
   const players = groups.flatMap((group) =>
     names[group].map((name, index) => {
-      const country = countries[groups.indexOf(group) * 6 + index];
+      const country = countries[group][index];
       return {
       id: `${group}${index + 1}`,
       group,
       name,
       nationality: country[0],
       flag: country[1],
-      seed: 6 - index,
+      seed: names[group].length - index,
       };
     }),
   );
@@ -211,6 +191,18 @@ export function groupStageMatchCount(tournament: Tournament, group: GroupId, pla
 export function groupStagePairExists(tournament: Tournament, group: GroupId, a: string, b: string) {
   const target = pairKey(a, b);
   return groupStageMatchesFor(tournament, group).some((match) => pairKey(match.a, match.b) === target);
+}
+
+export function roundRobinCapacityForGroup(tournament: Tournament, group: GroupId) {
+  const playerCount = tournament.players.filter((player) => player.group === group).length;
+  const pairCapacity = (playerCount * (playerCount - 1)) / 2;
+  const fiveMatchCapacity = Math.floor((playerCount * 5) / 2);
+  return Math.min(pairCapacity, fiveMatchCapacity);
+}
+
+export function totalRoundRobinCapacity(tournament: Tournament) {
+  const groups = ['A', 'B', 'C', 'D'] as GroupId[];
+  return groups.reduce((total, group) => total + roundRobinCapacityForGroup(tournament, group), 0);
 }
 
 export function setTotals(match: Match) {

@@ -10,9 +10,11 @@ import {
   playerFlag,
   playerName,
   resolveBracketMatch,
+  roundRobinCapacityForGroup,
   scoreText,
   setTotals,
   standingsFor,
+  totalRoundRobinCapacity,
 } from '@/lib/tournament';
 
 const groups: GroupId[] = ['A', 'B', 'C', 'D'];
@@ -37,6 +39,9 @@ export default function TournamentClient() {
   const bracketMatches = tournament.matches.filter((match) => !match.group);
   const playedCount = tournament.matches.filter((match) => match.group && match.status === 'played').length;
   const groupMatchCount = groupMatches.length;
+  const groupCapacity = roundRobinCapacityForGroup(tournament, group);
+  const totalGroupCapacity = totalRoundRobinCapacity(tournament);
+  const qualifierCount = groups.reduce((total, gid) => total + Math.min(2, tournament.players.filter((player) => player.group === gid).length), 0);
   const detail = useMemo<DetailMatch | null>(() => {
     if (!detailId) return null;
     const match = tournament.matches.find((item) => item.id === detailId);
@@ -63,8 +68,8 @@ export default function TournamentClient() {
         <div className="stats">
           <Stat value={tournament.players.length} label="players" />
           <Stat value={groups.length} label="groups" />
-          <Stat value={`${playedCount}/60`} label={tournament.roundRobinLabel} />
-          <Stat value="8" label={tournament.qualifyLabel} />
+          <Stat value={`${playedCount}/${totalGroupCapacity}`} label={tournament.roundRobinLabel} />
+          <Stat value={qualifierCount} label={tournament.qualifyLabel} />
         </div>
       </header>
 
@@ -114,7 +119,7 @@ export default function TournamentClient() {
           <section className="matches-section">
             <div className="section-head">
               <h2>Group {group} · round robin</h2>
-              <span>{groupMatchCount}/15 matches added · tap a match for the score sheet</span>
+              <span>{groupMatchCount}/{groupCapacity} matches added · tap a match for the score sheet</span>
             </div>
             <div className="match-list">
               {groupMatches.length > 0 ? (

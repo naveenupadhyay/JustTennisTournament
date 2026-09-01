@@ -66,9 +66,9 @@ const defaultGroupPlayers: Record<GroupId, Array<{ seed: number; name: string }>
     { seed: 8, name: 'Mohamed Faraz' },
     { seed: 9, name: 'Abdalrahman Nasser' },
     { seed: 16, name: 'Rizwan Siddiqi' },
-    { seed: 17, name: 'REHAN SALEH' },
+    { seed: 17, name: 'Rehan Saleh' },
     { seed: 24, name: 'Jake Cowling' },
-    { seed: 25, name: 'TONI' },
+    { seed: 25, name: 'Toni' },
   ],
   B: [
     { seed: 2, name: 'Chirag Patel' },
@@ -86,7 +86,7 @@ const defaultGroupPlayers: Record<GroupId, Array<{ seed: number; name: string }>
     { seed: 14, name: 'Rakesh Das' },
     { seed: 19, name: 'Saboor Alvi' },
     { seed: 22, name: 'Omar Hamieh' },
-    { seed: 27, name: 'TBA' },
+    { seed: 27, name: 'Tba' },
   ],
   D: [
     { seed: 4, name: 'Sukesh Raj Suvarna' },
@@ -95,14 +95,14 @@ const defaultGroupPlayers: Record<GroupId, Array<{ seed: number; name: string }>
     { seed: 13, name: 'Dominique Collin' },
     { seed: 20, name: 'Swapnil Satapathy' },
     { seed: 21, name: 'Clysses Jotrin' },
-    { seed: 28, name: 'TBA' },
+    { seed: 28, name: 'Tba' },
   ],
 };
 
 const playerCountries: Record<string, { nationality: string; flag: string }> = {
   'Abhishek Arora': { nationality: 'India', flag: '🇮🇳' },
   'Rizwan Siddiqi': { nationality: 'Pakistan', flag: '🇵🇰' },
-  'REHAN SALEH': { nationality: 'Pakistan', flag: '🇵🇰' },
+  'Rehan Saleh': { nationality: 'Pakistan', flag: '🇵🇰' },
   'Chirag Patel': { nationality: 'India', flag: '🇮🇳' },
   'Niyaz Husain': { nationality: 'India', flag: '🇮🇳' },
   'Lee Elliott': { nationality: 'United Kingdom', flag: '🇬🇧' },

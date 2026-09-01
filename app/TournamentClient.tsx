@@ -143,7 +143,7 @@ export default function TournamentClient() {
                   </div>
                   <table>
                     <thead>
-                      <tr><th>#</th><th>Player</th><th>Nat.</th><th>Played</th><th>W-L</th><th>Pts</th><th>Diff</th></tr>
+                      <tr><th>#</th><th>Player</th><th>Nat.</th><th>Played</th><th>W-L</th><th>Pts</th></tr>
                     </thead>
                     <tbody>
                       {table.map((row, index) => (
@@ -157,7 +157,6 @@ export default function TournamentClient() {
                           <td>{row.played}</td>
                           <td>{row.won}-{row.lost}</td>
                           <td>{row.points}</td>
-                          <td>{row.diff > 0 ? `+${row.diff}` : row.diff}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -336,7 +335,7 @@ function snapshotGroup(tournament: Tournament, gid: GroupId) {
     </div>
     <table>
       <thead>
-        <tr><th>#</th><th>Player</th><th>Nat.</th><th>Played</th><th>W-L</th><th>Pts</th><th>Diff</th></tr>
+        <tr><th>#</th><th>Player</th><th>Nat.</th><th>Played</th><th>W-L</th><th>Pts</th></tr>
       </thead>
       <tbody>
         ${table.map((row, index) => `<tr class="${index < 2 && row.played > 0 ? 'qualified' : ''}">
@@ -346,7 +345,6 @@ function snapshotGroup(tournament: Tournament, gid: GroupId) {
           <td>${row.played}</td>
           <td>${row.won}-${row.lost}</td>
           <td>${row.points}</td>
-          <td>${row.diff > 0 ? '+' : ''}${row.diff}</td>
         </tr>`).join('')}
       </tbody>
     </table>
@@ -482,7 +480,7 @@ function snapshotCss(accentColor: string) {
       text-transform: uppercase;
     }
     td strong { font-weight: 650; }
-    td:nth-child(1), td:nth-child(4), td:nth-child(5), td:nth-child(6), td:nth-child(7) { text-align: right; }
+    td:nth-child(1), td:nth-child(4), td:nth-child(5), td:nth-child(6) { text-align: right; }
     .qualified td { background: color-mix(in srgb, var(--accent) 10%, white); }
     .q {
       display: inline-flex;

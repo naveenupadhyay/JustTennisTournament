@@ -325,8 +325,7 @@ h1 {
 .group-card td:first-child,
 .group-card td:nth-child(4),
 .group-card td:nth-child(5),
-.group-card td:nth-child(6),
-.group-card td:nth-child(7) {
+.group-card td:nth-child(6) {
   color: var(--muted);
   font-family: var(--font-mono), ui-monospace, monospace;
 }

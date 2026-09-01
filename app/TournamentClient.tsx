@@ -74,6 +74,12 @@ export default function TournamentClient() {
         </div>
       </header>
 
+      <section className="tournament-video" aria-label="JUST Tennis US Open video">
+        <video autoPlay controls loop muted playsInline preload="metadata">
+          <source src="/just-tennis-us-open.mp4" type="video/mp4" />
+        </video>
+      </section>
+
       <nav className="tabs" aria-label="Tournament views">
         <button className={tab === 'groups' ? 'active' : ''} onClick={() => openTab('groups')}>Groups</button>
         <button className={tab === 'bracket' ? 'active' : ''} onClick={() => openTab('bracket')}>Knockout bracket</button>

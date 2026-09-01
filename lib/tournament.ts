@@ -116,6 +116,7 @@ const playerCountries: Record<string, { nationality: string; flag: string }> = {
   'Jake Cowling': { nationality: 'Australia', flag: '🇦🇺' },
   'Goldi Gupta': { nationality: 'Singapore', flag: '🇸🇬' },
   'Mohamed Faraz': { nationality: 'India', flag: '🇮🇳' },
+  'Naveen Upadhyay': { nationality: 'India', flag: '🇮🇳' },
   'Niyaz Husain': { nationality: 'India', flag: '🇮🇳' },
   'Rakesh Das': { nationality: 'India', flag: '🇮🇳' },
   'Saarim Alvi': { nationality: 'India', flag: '🇮🇳' },

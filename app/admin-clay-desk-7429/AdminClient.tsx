@@ -9,6 +9,7 @@ import {
   groupStageMatchCount,
   groupStagePairExists,
   playerName,
+  roundRobinMaxMatchesForPlayer,
 } from '@/lib/tournament';
 
 const groups: GroupId[] = ['A', 'B', 'C', 'D'];
@@ -102,9 +103,10 @@ export default function AdminClient() {
       }
       const playerACount = groupStageMatchCount(tournament, newMatch.group, newMatch.a);
       const playerBCount = groupStageMatchCount(tournament, newMatch.group, newMatch.b);
-      if (playerACount >= 5 || playerBCount >= 5) {
-        const cappedPlayer = playerACount >= 5 ? newMatch.a : newMatch.b;
-        setMessage(`${playerName(tournament, cappedPlayer)} already has 5 group-stage matches. A group player cannot play more than 5.`);
+      const maxMatches = roundRobinMaxMatchesForPlayer(tournament, newMatch.group);
+      if (playerACount >= maxMatches || playerBCount >= maxMatches) {
+        const cappedPlayer = playerACount >= maxMatches ? newMatch.a : newMatch.b;
+        setMessage(`${playerName(tournament, cappedPlayer)} already has ${maxMatches} group-stage matches. A group player cannot play more than ${maxMatches}.`);
         return;
       }
     }
@@ -135,19 +137,20 @@ export default function AdminClient() {
 
   function groupRuleNotice() {
     if (newMatch.stage !== 'round-robin') return null;
+    const maxMatches = roundRobinMaxMatchesForPlayer(tournament, newMatch.group);
     if (!newMatch.a || !newMatch.b || newMatch.a === newMatch.b) {
-      return 'Group stage rule: each player can have 5 matches, one against every other player in the group.';
+      return `Group stage rule: each player can have ${maxMatches} matches, one against every other player in the group.`;
     }
     if (groupStagePairExists(tournament, newMatch.group, newMatch.a, newMatch.b)) {
       return `${playerName(tournament, newMatch.a)} and ${playerName(tournament, newMatch.b)} are already paired in Group ${newMatch.group}.`;
     }
     const playerACount = groupStageMatchCount(tournament, newMatch.group, newMatch.a);
     const playerBCount = groupStageMatchCount(tournament, newMatch.group, newMatch.b);
-    if (playerACount >= 5 || playerBCount >= 5) {
-      const cappedPlayer = playerACount >= 5 ? newMatch.a : newMatch.b;
-      return `${playerName(tournament, cappedPlayer)} is already at 5 group matches.`;
+    if (playerACount >= maxMatches || playerBCount >= maxMatches) {
+      const cappedPlayer = playerACount >= maxMatches ? newMatch.a : newMatch.b;
+      return `${playerName(tournament, cappedPlayer)} is already at ${maxMatches} group matches.`;
     }
-    return `${playerName(tournament, newMatch.a)}: ${playerACount}/5 group matches. ${playerName(tournament, newMatch.b)}: ${playerBCount}/5 group matches.`;
+    return `${playerName(tournament, newMatch.a)}: ${playerACount}/${maxMatches} group matches. ${playerName(tournament, newMatch.b)}: ${playerBCount}/${maxMatches} group matches.`;
   }
 
   async function save() {
@@ -171,8 +174,8 @@ export default function AdminClient() {
     !!newMatch.b &&
     newMatch.a !== newMatch.b &&
     (groupStagePairExists(tournament, newMatch.group, newMatch.a, newMatch.b) ||
-      groupStageMatchCount(tournament, newMatch.group, newMatch.a) >= 5 ||
-      groupStageMatchCount(tournament, newMatch.group, newMatch.b) >= 5);
+      groupStageMatchCount(tournament, newMatch.group, newMatch.a) >= roundRobinMaxMatchesForPlayer(tournament, newMatch.group) ||
+      groupStageMatchCount(tournament, newMatch.group, newMatch.b) >= roundRobinMaxMatchesForPlayer(tournament, newMatch.group));
 
   return (
     <main className="admin-shell">
@@ -285,10 +288,11 @@ function PlayerSelect({ label, value, tournament, group, onChange }: { label: st
         {value && !players.some((player) => player.id === value) ? <option value={value}>{value}</option> : null}
         {players.map((player) => {
           const groupCount = group ? groupStageMatchCount(tournament, group, player.id) : null;
-          const isFull = groupCount !== null && groupCount >= 5 && value !== player.id;
+          const maxMatches = group ? roundRobinMaxMatchesForPlayer(tournament, group) : null;
+          const isFull = groupCount !== null && maxMatches !== null && groupCount >= maxMatches && value !== player.id;
           return (
             <option disabled={isFull} key={player.id} value={player.id}>
-              {player.flag} {player.name}{groupCount !== null ? ` (${groupCount}/5)` : ''}
+              {player.flag} {player.name}{groupCount !== null && maxMatches !== null ? ` (${groupCount}/${maxMatches})` : ''}
             </option>
           );
         })}

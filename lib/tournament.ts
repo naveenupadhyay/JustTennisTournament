@@ -60,18 +60,43 @@ export type BracketMatch = Match & {
 
 const emptySets: Match['sets'] = [[null, null], [null, null], [null, null]];
 
-const names: Record<GroupId, string[]> = {
-  A: ['Mateo Alvarez', 'Ravi Deshpande', 'Jonas Brenner', 'Hugo Lindqvist', 'Tomas Varga', 'Ade Okonkwo'],
-  B: ['Elias Moreau', 'Kenji Tanabe', 'Samir Haddad', 'Nils Berger', 'Owen Pritchard', 'Diego Salas'],
-  C: ['Luca Ferraro', 'Arun Menon', 'Pieter de Vries', 'Youssef Rahal', 'Callum Reid', 'Marek Nowak'],
-  D: ['Andrés Pinto', 'Ilya Sokolov', 'Felix Wu', 'Gabriel Nunes', 'Sean Byrne', 'Amir Farsi'],
-};
-
-const countries: Record<GroupId, Array<[string, string]>> = {
-  A: [['Spain', '🇪🇸'], ['India', '🇮🇳'], ['Germany', '🇩🇪'], ['Sweden', '🇸🇪'], ['Serbia', '🇷🇸'], ['Nigeria', '🇳🇬']],
-  B: [['France', '🇫🇷'], ['Japan', '🇯🇵'], ['Lebanon', '🇱🇧'], ['Austria', '🇦🇹'], ['United Kingdom', '🇬🇧'], ['Argentina', '🇦🇷']],
-  C: [['Italy', '🇮🇹'], ['India', '🇮🇳'], ['Netherlands', '🇳🇱'], ['Morocco', '🇲🇦'], ['Ireland', '🇮🇪'], ['Poland', '🇵🇱']],
-  D: [['Chile', '🇨🇱'], ['Russia', '🇷🇺'], ['China', '🇨🇳'], ['Brazil', '🇧🇷'], ['Ireland', '🇮🇪'], ['Iran', '🇮🇷']],
+const defaultGroupPlayers: Record<GroupId, Array<{ seed: number; name: string }>> = {
+  A: [
+    { seed: 1, name: 'Abhishek Arora' },
+    { seed: 8, name: 'Mohamed Faraz' },
+    { seed: 9, name: 'Abdalrahman Nasser' },
+    { seed: 16, name: 'Rizwan Siddiqi' },
+    { seed: 17, name: 'REHAN SALEH' },
+    { seed: 24, name: 'Jake Cowling' },
+    { seed: 25, name: 'TONI' },
+  ],
+  B: [
+    { seed: 2, name: 'Chirag Patel' },
+    { seed: 7, name: 'Asim Ali' },
+    { seed: 10, name: 'Naveen Upadhyay' },
+    { seed: 15, name: 'Niyaz Husain' },
+    { seed: 18, name: 'Asif Khan Yousafzai' },
+    { seed: 23, name: 'Vikas Vicky Bach' },
+    { seed: 26, name: 'Saarim Alvi' },
+  ],
+  C: [
+    { seed: 3, name: 'Lee Elliott' },
+    { seed: 6, name: 'Vishal Wadhwa' },
+    { seed: 11, name: 'Eslam Ibrahim' },
+    { seed: 14, name: 'Rakesh Das' },
+    { seed: 19, name: 'Saboor Alvi' },
+    { seed: 22, name: 'Omar Hamieh' },
+    { seed: 27, name: 'TBA' },
+  ],
+  D: [
+    { seed: 4, name: 'Sukesh Raj Suvarna' },
+    { seed: 5, name: 'Goldi Gupta' },
+    { seed: 12, name: 'Syed Mohammad Alvi' },
+    { seed: 13, name: 'Dominique Collin' },
+    { seed: 20, name: 'Swapnil Satapathy' },
+    { seed: 21, name: 'Clysses Jotrin' },
+    { seed: 28, name: 'TBA' },
+  ],
 };
 
 const courts = ['Court 1', 'Court 2', 'Court 3', 'Centre Court'];
@@ -109,17 +134,16 @@ function playMatch(seed: number, strengthA: number, strengthB: number) {
 }
 
 export const defaultTournament: Tournament = (() => {
-  const groups = Object.keys(names) as GroupId[];
+  const groups = Object.keys(defaultGroupPlayers) as GroupId[];
   const players = groups.flatMap((group) =>
-    names[group].map((name, index) => {
-      const country = countries[group][index];
+    defaultGroupPlayers[group].map((player, index) => {
       return {
       id: `${group}${index + 1}`,
       group,
-      name,
-      nationality: country[0],
-      flag: country[1],
-      seed: names[group].length - index,
+      name: player.name,
+      nationality: '',
+      flag: '🏳️',
+      seed: player.seed,
       };
     }),
   );
@@ -193,11 +217,13 @@ export function groupStagePairExists(tournament: Tournament, group: GroupId, a: 
   return groupStageMatchesFor(tournament, group).some((match) => pairKey(match.a, match.b) === target);
 }
 
+export function roundRobinMaxMatchesForPlayer(tournament: Tournament, group: GroupId) {
+  return Math.max(0, tournament.players.filter((player) => player.group === group).length - 1);
+}
+
 export function roundRobinCapacityForGroup(tournament: Tournament, group: GroupId) {
   const playerCount = tournament.players.filter((player) => player.group === group).length;
-  const pairCapacity = (playerCount * (playerCount - 1)) / 2;
-  const fiveMatchCapacity = Math.floor((playerCount * 5) / 2);
-  return Math.min(pairCapacity, fiveMatchCapacity);
+  return (playerCount * (playerCount - 1)) / 2;
 }
 
 export function totalRoundRobinCapacity(tournament: Tournament) {

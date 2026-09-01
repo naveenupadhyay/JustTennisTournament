@@ -47,8 +47,8 @@ export type Standing = {
   played: number;
   won: number;
   lost: number;
-  gf: number;
-  ga: number;
+  points: number;
+  pointsAgainst: number;
   diff: number;
 };
 
@@ -277,7 +277,7 @@ export function setTotals(match: Match) {
 export function standingsFor(tournament: Tournament, group: GroupId): Standing[] {
   const rows = tournament.players
     .filter((player) => player.group === group)
-    .map((player) => ({ player, played: 0, won: 0, lost: 0, gf: 0, ga: 0, diff: 0 }));
+    .map((player) => ({ player, played: 0, won: 0, lost: 0, points: 0, pointsAgainst: 0, diff: 0 }));
 
   const byId = new Map(rows.map((row) => [row.player.id, row]));
   tournament.matches
@@ -290,10 +290,10 @@ export function standingsFor(tournament: Tournament, group: GroupId): Standing[]
       const [ag, bg] = setTotals(match);
       a.played += 1;
       b.played += 1;
-      a.gf += ag;
-      a.ga += bg;
-      b.gf += bg;
-      b.ga += ag;
+      a.points += ag;
+      a.pointsAgainst += bg;
+      b.points += bg;
+      b.pointsAgainst += ag;
       if (winner === 0) {
         a.won += 1;
         b.lost += 1;
@@ -304,10 +304,10 @@ export function standingsFor(tournament: Tournament, group: GroupId): Standing[]
     });
 
   rows.forEach((row) => {
-    row.diff = row.gf - row.ga;
+    row.diff = row.points - row.pointsAgainst;
   });
 
-  return rows.sort((x, y) => y.won - x.won || y.diff - x.diff || y.player.seed - x.player.seed);
+  return rows.sort((x, y) => y.points - x.points || y.won - x.won || y.diff - x.diff || y.player.seed - x.player.seed);
 }
 
 export function qualifier(tournament: Tournament, code: string) {

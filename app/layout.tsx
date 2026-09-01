@@ -15,9 +15,9 @@ export const metadata: Metadata = {
     siteName: 'Just Tennis US Open',
     images: [
       {
-        url: '/opengraph-image',
-        width: 1200,
-        height: 630,
+        url: '/whatsapp-preview.png',
+        width: 828,
+        height: 392,
         alt: 'Just Tennis US Open tournament preview',
       },
     ],
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Just Tennis US Open',
     description: 'League tables, match results, and knockout bracket for the Just Tennis US Open Edition.',
-    images: ['/opengraph-image'],
+    images: ['/whatsapp-preview.png'],
   },
 };
 

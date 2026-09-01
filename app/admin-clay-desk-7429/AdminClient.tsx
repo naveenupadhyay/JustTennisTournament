@@ -15,6 +15,7 @@ import {
   roundRobinMaxMatchesForPlayer,
   scoreWinner,
 } from '@/lib/tournament';
+import { downloadTournamentCsv, openTournamentPdfSnapshot } from '@/lib/tournament-export';
 
 const groups: GroupId[] = ['A', 'B', 'C', 'D'];
 const stages: Match['stage'][] = ['round-robin', 'quarter-final', 'semi-final', 'final'];
@@ -203,6 +204,8 @@ export default function AdminClient() {
         </div>
         <div className="admin-actions">
           <a href="/" target="_blank">View public site</a>
+          <button type="button" onClick={() => downloadTournamentCsv(tournament)}>Download CSV</button>
+          <button type="button" onClick={() => openTournamentPdfSnapshot(tournament)}>Download PDF</button>
           <button disabled={saving} onClick={save}>{saving ? 'Saving' : 'Save all changes'}</button>
         </div>
       </header>

@@ -155,26 +155,6 @@ h1 {
   font-weight: 400;
 }
 
-.download-button {
-  min-height: 38px;
-  padding: 8px 14px;
-  border: 1px solid var(--accent);
-  border-radius: 3px;
-  background: var(--accent);
-  color: white;
-  font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
-.download-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  justify-content: flex-end;
-}
-
 .tournament-video {
   position: relative;
   max-width: 1480px;
@@ -1092,10 +1072,6 @@ h1 {
 
   .header-tools {
     justify-items: start;
-  }
-
-  .download-actions {
-    justify-content: flex-start;
   }
 
   .brand-logos {

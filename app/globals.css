@@ -126,6 +126,14 @@ h1 {
   line-height: 1;
 }
 
+.event-dates {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-family: var(--font-serif), Georgia, serif;
+  font-size: 28px;
+  line-height: 1.1;
+}
+
 .stats {
   display: flex;
   gap: 28px;
@@ -1072,6 +1080,10 @@ h1 {
 
   h1 {
     font-size: 40px;
+  }
+
+  .event-dates {
+    font-size: 23px;
   }
 
   .stats {

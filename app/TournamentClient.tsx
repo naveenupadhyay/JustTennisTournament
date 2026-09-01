@@ -99,6 +99,7 @@ export default function TournamentClient() {
           </div>
           <div className="eyebrow">{tournament.club}</div>
           <h1>{tournament.title}</h1>
+          <p className="event-dates">Sep 1 - Oct 1</p>
         </div>
         <div className="header-tools">
           <div className="stats">
@@ -308,6 +309,7 @@ function buildTournamentSnapshotHtml(tournament: Tournament) {
           </div>
           <p class="eyebrow">${escapeHtml(tournament.club)}</p>
           <h1>${escapeHtml(tournament.title)}</h1>
+          <p class="event-dates">Sep 1 - Oct 1</p>
         </div>
         <div class="stats">
           <div><strong>${tournament.players.length}</strong><span>players</span></div>
@@ -419,6 +421,13 @@ function snapshotCss(accentColor: string) {
       line-height: 1;
     }
     h1 { font-size: 42px; }
+    .event-dates {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-family: Georgia, serif;
+      font-size: 24px;
+      line-height: 1.1;
+    }
     .stats {
       display: grid;
       grid-template-columns: repeat(2, minmax(92px, 1fr));

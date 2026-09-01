@@ -206,14 +206,44 @@ export function playerFlag(tournament: Tournament, idOrName: string) {
 export function scoreWinner(sets: Match['sets']): 0 | 1 | null {
   let aw = 0;
   let bw = 0;
+  let completedSets = 0;
   sets.forEach(([a, b]) => {
     if (a === null || b === null || a === b) return;
+    completedSets += 1;
     if (a > b) aw += 1;
     else bw += 1;
   });
   if (aw >= 2) return 0;
   if (bw >= 2) return 1;
+  if (completedSets === 1) return aw > bw ? 0 : 1;
   return null;
+}
+
+export function parseScoreSets(finalScore: string): Match['sets'] {
+  const parsed = Array.from(finalScore.matchAll(/(\d{1,2})\s*[-/]\s*(\d{1,2})/g))
+    .map((match) => [Number(match[1]), Number(match[2])] as [number, number])
+    .slice(0, 3);
+
+  return [0, 1, 2].map((index) => parsed[index] ?? [null, null]) as Match['sets'];
+}
+
+export function hasPlayedSets(sets: Match['sets']) {
+  return sets.some(([a, b]) => a !== null && b !== null && a !== b);
+}
+
+export function leaguePointsForSets(sets: Match['sets']): [number, number] | null {
+  const winner = scoreWinner(sets);
+  if (winner === null) return null;
+  const setWins = sets.reduce<[number, number]>((wins, [a, b]) => {
+    if (a === null || b === null || a === b) return wins;
+    wins[a > b ? 0 : 1] += 1;
+    return wins;
+  }, [0, 0]);
+
+  return [
+    setWins[0] * 2 + (winner === 0 ? 5 : 0),
+    setWins[1] * 2 + (winner === 1 ? 5 : 0),
+  ];
 }
 
 export function matchWinner(match: Match): 0 | 1 | null {
@@ -268,10 +298,7 @@ export function setTotals(match: Match) {
   if (match.pointsA !== null && match.pointsB !== null) {
     return [match.pointsA, match.pointsB] as [number, number];
   }
-  return match.sets.reduce<[number, number]>(
-    (total, [a, b]) => [total[0] + (a ?? 0), total[1] + (b ?? 0)],
-    [0, 0],
-  );
+  return leaguePointsForSets(match.sets) ?? [0, 0];
 }
 
 export function standingsFor(tournament: Tournament, group: GroupId): Standing[] {
@@ -366,13 +393,16 @@ export function sanitizeTournament(input: Tournament): Tournament {
       : defaultTournament.players,
     matches: Array.isArray(input.matches)
       ? input.matches.map((match) => {
-          const sets: Match['sets'] = Array.isArray(match.sets) ? match.sets : emptySets;
+          const savedSets: Match['sets'] = Array.isArray(match.sets) ? match.sets : emptySets;
+          const parsedSets = parseScoreSets(match.finalScore || '');
+          const sets = hasPlayedSets(savedSets) ? savedSets : parsedSets;
+          const inferredPoints = leaguePointsForSets(sets);
           const next = {
             ...match,
             sets,
             finalScore: match.finalScore || '',
-            pointsA: match.pointsA ?? null,
-            pointsB: match.pointsB ?? null,
+            pointsA: match.pointsA ?? inferredPoints?.[0] ?? null,
+            pointsB: match.pointsB ?? inferredPoints?.[1] ?? null,
           };
           const winner = matchWinner(next);
           return { ...next, winner, status: winner === null ? next.status : 'played' };

@@ -9,8 +9,11 @@ import {
   groupLabel,
   groupStageMatchCount,
   groupStagePairExists,
+  leaguePointsForSets,
   playerName,
+  parseScoreSets,
   roundRobinMaxMatchesForPlayer,
+  scoreWinner,
 } from '@/lib/tournament';
 
 const groups: GroupId[] = ['A', 'B', 'C', 'D'];
@@ -121,8 +124,11 @@ export default function AdminClient() {
         return;
       }
     }
-    const pointsA = newMatch.pointsA === '' ? null : Number(newMatch.pointsA);
-    const pointsB = newMatch.pointsB === '' ? null : Number(newMatch.pointsB);
+    const sets = parseScoreSets(newMatch.finalScore);
+    const inferredPoints = leaguePointsForSets(sets);
+    const pointsA = newMatch.pointsA === '' ? inferredPoints?.[0] ?? null : Number(newMatch.pointsA);
+    const pointsB = newMatch.pointsB === '' ? inferredPoints?.[1] ?? null : Number(newMatch.pointsB);
+    const winner = pointsA !== null && pointsB !== null && pointsA !== pointsB ? (pointsA > pointsB ? 0 : 1) : scoreWinner(sets);
     const match: Match = {
       id: `M${Date.now()}`,
       group: newMatch.stage === 'round-robin' ? newMatch.group : undefined,
@@ -130,16 +136,16 @@ export default function AdminClient() {
       slot: newMatch.stage === 'round-robin' ? groupLabel(tournament, newMatch.group) : stageLabel(newMatch.stage),
       a: newMatch.a,
       b: newMatch.b,
-      sets: [[null, null], [null, null], [null, null]],
+      sets,
       finalScore: newMatch.finalScore,
       pointsA,
       pointsB,
-      winner: pointsA !== null && pointsB !== null && pointsA !== pointsB ? (pointsA > pointsB ? 0 : 1) : null,
+      winner,
       mins: null,
       court: newMatch.court,
       day: newMatch.day,
       when: newMatch.when,
-      status: pointsA !== null && pointsB !== null ? 'played' : 'scheduled',
+      status: winner !== null ? 'played' : 'scheduled',
     };
     setTournament((current) => ({ ...current, matches: [...current.matches, match] }));
     setNewMatch(blankMatch);

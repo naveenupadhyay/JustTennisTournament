@@ -67,55 +67,7 @@ export default function TournamentClient() {
   }
 
   function downloadTournamentData() {
-    const rows: string[][] = [
-      ['Just Tennis US Open Export'],
-      ['Generated', new Date().toLocaleString()],
-      [],
-      ['Group Standings'],
-      ['Group', 'Rank', 'Player', 'Nationality', 'Played', 'Won', 'Lost', 'Points For', 'Points Against', 'Difference'],
-    ];
-
-    groups.forEach((gid) => {
-      standingsFor(tournament, gid).forEach((row, index) => {
-        rows.push([
-          groupLabel(tournament, gid),
-          String(index + 1),
-          row.player.name,
-          row.player.nationality,
-          String(row.played),
-          String(row.won),
-          String(row.lost),
-          String(row.gf),
-          String(row.ga),
-          String(row.diff),
-        ]);
-      });
-    });
-
-    rows.push(
-      [],
-      ['Group Stage Match Results'],
-      ['Group', 'Match', 'Date', 'Court', 'Player A', 'Player B', 'Final Score', 'Points A', 'Points B', 'Winner', 'Status'],
-    );
-
-    tournament.matches
-      .filter((match) => match.stage === 'round-robin')
-      .forEach((match) => {
-        const winner = match.winner === 0 ? playerName(tournament, match.a) : match.winner === 1 ? playerName(tournament, match.b) : '';
-        rows.push([
-          match.group ? groupLabel(tournament, match.group) : '',
-          match.slot,
-          [match.day, match.when].filter(Boolean).join(' '),
-          match.court,
-          playerName(tournament, match.a),
-          playerName(tournament, match.b),
-          scoreText(match),
-          match.pointsA === null ? '' : String(match.pointsA),
-          match.pointsB === null ? '' : String(match.pointsB),
-          winner,
-          match.status,
-        ]);
-      });
+    const rows = exportRows(tournament);
 
     const csv = rows.map((row) => row.map(csvCell).join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
@@ -123,6 +75,17 @@ export default function TournamentClient() {
     const link = document.createElement('a');
     link.href = url;
     link.download = 'just-tennis-us-open-data.csv';
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function downloadTournamentPdf() {
+    const pdf = buildTournamentPdf(tournament);
+    const blob = new Blob([pdf], { type: 'application/pdf' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'just-tennis-us-open-data.pdf';
     link.click();
     URL.revokeObjectURL(url);
   }
@@ -145,7 +108,10 @@ export default function TournamentClient() {
             <Stat value={`${playedCount}/${totalGroupCapacity}`} label={tournament.roundRobinLabel} />
             <Stat value={qualifierCount} label={tournament.qualifyLabel} />
           </div>
-          <button className="download-button" onClick={downloadTournamentData}>Download data</button>
+          <div className="download-actions">
+            <button className="download-button" onClick={downloadTournamentData}>Download CSV</button>
+            <button className="download-button" onClick={downloadTournamentPdf}>Download PDF</button>
+          </div>
         </div>
       </header>
 
@@ -261,6 +227,155 @@ function Stat({ value, label }: { value: string | number; label: string }) {
 function csvCell(value: string) {
   if (/[",\n]/.test(value)) return `"${value.replaceAll('"', '""')}"`;
   return value;
+}
+
+function exportRows(tournament: Tournament) {
+  const rows: string[][] = [
+    ['Just Tennis US Open Export'],
+    ['Generated', new Date().toLocaleString()],
+    [],
+    ['Group Standings'],
+    ['Group', 'Rank', 'Player', 'Nationality', 'Played', 'Won', 'Lost', 'Points For', 'Points Against', 'Difference'],
+  ];
+
+  groups.forEach((gid) => {
+    standingsFor(tournament, gid).forEach((row, index) => {
+      rows.push([
+        groupLabel(tournament, gid),
+        String(index + 1),
+        row.player.name,
+        row.player.nationality,
+        String(row.played),
+        String(row.won),
+        String(row.lost),
+        String(row.gf),
+        String(row.ga),
+        String(row.diff),
+      ]);
+    });
+  });
+
+  rows.push(
+    [],
+    ['Group Stage Match Results'],
+    ['Group', 'Match', 'Date', 'Court', 'Player A', 'Player B', 'Final Score', 'Points A', 'Points B', 'Winner', 'Status'],
+  );
+
+  const groupMatches = tournament.matches.filter((match) => match.stage === 'round-robin');
+  if (groupMatches.length === 0) {
+    rows.push(['No group-stage matches recorded yet.']);
+  }
+
+  groupMatches.forEach((match) => {
+    const winner = match.winner === 0 ? playerName(tournament, match.a) : match.winner === 1 ? playerName(tournament, match.b) : '';
+    rows.push([
+      match.group ? groupLabel(tournament, match.group) : '',
+      match.slot,
+      [match.day, match.when].filter(Boolean).join(' '),
+      match.court,
+      playerName(tournament, match.a),
+      playerName(tournament, match.b),
+      scoreText(match),
+      match.pointsA === null ? '' : String(match.pointsA),
+      match.pointsB === null ? '' : String(match.pointsB),
+      winner,
+      match.status,
+    ]);
+  });
+
+  return rows;
+}
+
+function buildTournamentPdf(tournament: Tournament) {
+  const lines = exportRows(tournament).flatMap((row) => {
+    if (row.length === 0) return [''];
+    if (row.length === 1) return wrapPdfLine(row[0], 94);
+    return wrapPdfLine(row.join(' | '), 94);
+  });
+  return createSimplePdf(lines);
+}
+
+function createSimplePdf(lines: string[]) {
+  const width = 595;
+  const height = 842;
+  const margin = 42;
+  const lineHeight = 14;
+  const linesPerPage = Math.floor((height - margin * 2) / lineHeight);
+  const pages = chunk(lines, linesPerPage);
+  const objects: string[] = [];
+  const addObject = (body: string) => {
+    objects.push(body);
+    return objects.length;
+  };
+
+  const catalogId = addObject('<< /Type /Catalog /Pages 2 0 R >>');
+  const pagesId = addObject('');
+  const fontId = addObject('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>');
+  const pageIds: number[] = [];
+
+  pages.forEach((pageLines, index) => {
+    const content = [
+      'BT',
+      `/F1 ${index === 0 ? 12 : 10} Tf`,
+      `${margin} ${height - margin} Td`,
+      `${lineHeight} TL`,
+      ...pageLines.map((line) => `(${escapePdfText(line)}) Tj T*`),
+      'ET',
+    ].join('\n');
+    const contentId = addObject(`<< /Length ${content.length} >>\nstream\n${content}\nendstream`);
+    const pageId = addObject(`<< /Type /Page /Parent ${pagesId} 0 R /MediaBox [0 0 ${width} ${height}] /Resources << /Font << /F1 ${fontId} 0 R >> >> /Contents ${contentId} 0 R >>`);
+    pageIds.push(pageId);
+  });
+
+  objects[pagesId - 1] = `<< /Type /Pages /Kids [${pageIds.map((id) => `${id} 0 R`).join(' ')}] /Count ${pageIds.length} >>`;
+
+  let pdf = '%PDF-1.4\n';
+  const offsets = [0];
+  objects.forEach((body, index) => {
+    offsets.push(pdf.length);
+    pdf += `${index + 1} 0 obj\n${body}\nendobj\n`;
+  });
+  const xrefOffset = pdf.length;
+  pdf += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
+  offsets.slice(1).forEach((offset) => {
+    pdf += `${String(offset).padStart(10, '0')} 00000 n \n`;
+  });
+  pdf += `trailer\n<< /Size ${objects.length + 1} /Root ${catalogId} 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`;
+  return pdf;
+}
+
+function wrapPdfLine(line: string, maxLength: number) {
+  const clean = toPdfText(line);
+  if (clean.length <= maxLength) return [clean];
+  const words = clean.split(' ');
+  const lines: string[] = [];
+  let current = '';
+
+  words.forEach((word) => {
+    const next = current ? `${current} ${word}` : word;
+    if (next.length > maxLength && current) {
+      lines.push(current);
+      current = word;
+    } else {
+      current = next;
+    }
+  });
+  if (current) lines.push(current);
+  return lines;
+}
+
+function toPdfText(value: string) {
+  return value.normalize('NFKD').replace(/[^\x20-\x7E]/g, '').trim();
+}
+
+function escapePdfText(value: string) {
+  return toPdfText(value).replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)');
+}
+
+function chunk<T>(items: T[], size: number) {
+  const chunks: T[][] = [];
+  for (let index = 0; index < items.length; index += size) chunks.push(items.slice(index, index + size));
+  return chunks.length ? chunks : [[]];
 }
 
 function Round({ title, when, pad, matches, detailId, open }: { title: string; when: string; pad: string; matches: BracketMatch[]; detailId: string | null; open: (id: string) => void }) {

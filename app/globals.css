@@ -160,6 +160,13 @@ h1 {
   text-transform: uppercase;
 }
 
+.download-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
 .tournament-video {
   position: relative;
   max-width: 1480px;
@@ -1072,6 +1079,10 @@ h1 {
 
   .header-tools {
     justify-items: start;
+  }
+
+  .download-actions {
+    justify-content: flex-start;
   }
 
   .brand-logos {

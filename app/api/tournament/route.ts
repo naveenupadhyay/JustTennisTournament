@@ -2,7 +2,7 @@ import { Redis } from '@upstash/redis';
 import { NextRequest, NextResponse } from 'next/server';
 import { Tournament, defaultTournament, sanitizeTournament } from '@/lib/tournament';
 
-const STORE_ID = 'seven-player-groups-v8';
+const STORE_ID = 'location-groups-v9';
 let memoryTournament = defaultTournament;
 
 export const dynamic = 'force-dynamic';

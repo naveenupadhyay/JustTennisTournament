@@ -7,6 +7,7 @@ import {
   Match,
   Tournament,
   defaultTournament,
+  groupLabel,
   playerFlag,
   playerName,
   resolveBracketMatch,
@@ -86,7 +87,7 @@ export default function TournamentClient() {
               return (
                 <section className="group-card" key={gid}>
                   <div className="group-head">
-                    <h2>Group {gid}</h2>
+                    <h2>{groupLabel(tournament, gid)}</h2>
                     <button className={group === gid ? 'showing' : ''} onClick={() => setGroup(gid)}>
                       {group === gid ? 'showing results' : 'view results'}
                     </button>
@@ -118,7 +119,7 @@ export default function TournamentClient() {
 
           <section className="matches-section">
             <div className="section-head">
-              <h2>Group {group} · round robin</h2>
+              <h2>{groupLabel(tournament, group)} · round robin</h2>
               <span>{groupMatchCount}/{groupCapacity} matches added · tap a match for the score sheet</span>
             </div>
             <div className="match-list">
@@ -134,7 +135,7 @@ export default function TournamentClient() {
                   </button>
                 ))
               ) : (
-                <p className="empty-state">No Group {group} matches added yet.</p>
+                <p className="empty-state">No matches added for {groupLabel(tournament, group)} yet.</p>
               )}
             </div>
           </section>
@@ -199,7 +200,7 @@ function Detail({ tournament, match, close }: { tournament: Tournament; match: D
     <aside className="detail-panel">
       <div className="detail-top">
         <div>
-          <p>{match.group ? `Group ${match.group} · round robin` : match.slot}</p>
+          <p>{match.group ? `${groupLabel(tournament, match.group)} · round robin` : match.slot}</p>
           <h2>{title}</h2>
         </div>
         <button aria-label="Close score sheet" onClick={close}>×</button>

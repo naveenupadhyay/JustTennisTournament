@@ -6,6 +6,7 @@ import {
   Match,
   Tournament,
   defaultTournament,
+  groupLabel,
   groupStageMatchCount,
   groupStagePairExists,
   playerName,
@@ -47,6 +48,16 @@ export default function AdminClient() {
 
   function updateTournament(field: 'club' | 'event' | 'title' | 'roundRobinLabel' | 'qualifyLabel' | 'championLabel' | 'championMeta' | 'accentColor', value: string) {
     setTournament((current) => ({ ...current, [field]: value }));
+  }
+
+  function updateGroupLabel(group: GroupId, value: string) {
+    setTournament((current) => ({
+      ...current,
+      groupLabels: {
+        ...current.groupLabels,
+        [group]: value,
+      },
+    }));
   }
 
   function updatePlayer(id: string, field: 'name' | 'nationality' | 'flag' | 'seed' | 'group', value: string) {
@@ -94,11 +105,11 @@ export default function AdminClient() {
       const playerA = tournament.players.find((player) => player.id === newMatch.a);
       const playerB = tournament.players.find((player) => player.id === newMatch.b);
       if (playerA?.group !== newMatch.group || playerB?.group !== newMatch.group) {
-        setMessage(`Choose two players from Group ${newMatch.group}.`);
+        setMessage(`Choose two players from ${groupLabel(tournament, newMatch.group)}.`);
         return;
       }
       if (groupStagePairExists(tournament, newMatch.group, newMatch.a, newMatch.b)) {
-        setMessage(`${playerName(tournament, newMatch.a)} and ${playerName(tournament, newMatch.b)} already have a Group ${newMatch.group} match. Each pair plays once.`);
+        setMessage(`${playerName(tournament, newMatch.a)} and ${playerName(tournament, newMatch.b)} already have a ${groupLabel(tournament, newMatch.group)} match. Each pair plays once.`);
         return;
       }
       const playerACount = groupStageMatchCount(tournament, newMatch.group, newMatch.a);
@@ -116,7 +127,7 @@ export default function AdminClient() {
       id: `M${Date.now()}`,
       group: newMatch.stage === 'round-robin' ? newMatch.group : undefined,
       stage: newMatch.stage,
-      slot: newMatch.stage === 'round-robin' ? `Group ${newMatch.group}` : stageLabel(newMatch.stage),
+      slot: newMatch.stage === 'round-robin' ? groupLabel(tournament, newMatch.group) : stageLabel(newMatch.stage),
       a: newMatch.a,
       b: newMatch.b,
       sets: [[null, null], [null, null], [null, null]],
@@ -142,7 +153,7 @@ export default function AdminClient() {
       return `Group stage rule: each player can have ${maxMatches} matches, one against every other player in the group.`;
     }
     if (groupStagePairExists(tournament, newMatch.group, newMatch.a, newMatch.b)) {
-      return `${playerName(tournament, newMatch.a)} and ${playerName(tournament, newMatch.b)} are already paired in Group ${newMatch.group}.`;
+      return `${playerName(tournament, newMatch.a)} and ${playerName(tournament, newMatch.b)} are already paired in ${groupLabel(tournament, newMatch.group)}.`;
     }
     const playerACount = groupStageMatchCount(tournament, newMatch.group, newMatch.a);
     const playerBCount = groupStageMatchCount(tournament, newMatch.group, newMatch.b);
@@ -202,6 +213,9 @@ export default function AdminClient() {
           <Field label="Champion label" value={tournament.championLabel} onChange={(value) => updateTournament('championLabel', value)} />
           <Field label="Champion meta" value={tournament.championMeta} onChange={(value) => updateTournament('championMeta', value)} />
           <Field label="Accent color" value={tournament.accentColor} onChange={(value) => updateTournament('accentColor', value)} />
+          {groups.map((group) => (
+            <Field key={group} label={`Group ${group} label`} value={groupLabel(tournament, group)} onChange={(value) => updateGroupLabel(group, value)} />
+          ))}
         </div>
       </section>
 
@@ -210,7 +224,7 @@ export default function AdminClient() {
         {groups.map((group) => (
           <div className="admin-table-wrap" key={group}>
             <div className="admin-subhead">
-              <h3>Group {group}</h3>
+              <h3>{groupLabel(tournament, group)}</h3>
               <button onClick={() => addPlayer(group)}>Add player</button>
             </div>
             <table className="admin-table">
@@ -224,7 +238,7 @@ export default function AdminClient() {
                     <td><input type="number" min="1" max="99" value={player.seed} onChange={(event) => updatePlayer(player.id, 'seed', event.target.value)} /></td>
                     <td>
                       <select value={player.group} onChange={(event) => updatePlayer(player.id, 'group', event.target.value as GroupId)}>
-                        {groups.map((item) => <option key={item}>{item}</option>)}
+                        {groups.map((item) => <option key={item} value={item}>{groupLabel(tournament, item)}</option>)}
                       </select>
                     </td>
                     <td><button className="text-button" onClick={() => removePlayer(player.id)}>Remove</button></td>
@@ -240,7 +254,7 @@ export default function AdminClient() {
         <h2>Add match</h2>
         <div className="add-match-panel">
           <label><span>Stage</span><select value={newMatch.stage} onChange={(event) => setNewMatch((current) => ({ ...current, stage: event.target.value as Match['stage'], a: '', b: '' }))}>{stages.map((stage) => <option key={stage} value={stage}>{stageLabel(stage)}</option>)}</select></label>
-          {newMatch.stage === 'round-robin' ? <label><span>Group</span><select value={newMatch.group} onChange={(event) => setNewMatch((current) => ({ ...current, group: event.target.value as GroupId, a: '', b: '' }))}>{groups.map((group) => <option key={group}>{group}</option>)}</select></label> : null}
+          {newMatch.stage === 'round-robin' ? <label><span>Group</span><select value={newMatch.group} onChange={(event) => setNewMatch((current) => ({ ...current, group: event.target.value as GroupId, a: '', b: '' }))}>{groups.map((group) => <option key={group} value={group}>{groupLabel(tournament, group)}</option>)}</select></label> : null}
           <PlayerSelect label="Player A" value={newMatch.a} tournament={tournament} group={newMatch.stage === 'round-robin' ? newMatch.group : null} onChange={(value) => setNewMatch((current) => ({ ...current, a: value }))} />
           <PlayerSelect label="Player B" value={newMatch.b} tournament={tournament} group={newMatch.stage === 'round-robin' ? newMatch.group : null} onChange={(value) => setNewMatch((current) => ({ ...current, b: value }))} />
           {activeGroupRuleNotice ? <p className={activeGroupRuleWarning ? 'rule-warning' : 'rule-note'}>{activeGroupRuleNotice}</p> : null}

@@ -37,6 +37,7 @@ export type Tournament = {
   championLabel: string;
   championMeta: string;
   accentColor: string;
+  groupLabels: Record<GroupId, string>;
   players: Player[];
   matches: Match[];
 };
@@ -60,55 +61,67 @@ export type BracketMatch = Match & {
 
 const emptySets: Match['sets'] = [[null, null], [null, null], [null, null]];
 
+const defaultGroupLabels: Record<GroupId, string> = {
+  A: 'Group 1 - South Dubai / DIP / Jebel Ali',
+  B: 'Group 2 - Marina / JLT / Barsha / New Dubai',
+  C: 'Group 3 - Sports City / Dubailand / Barsha South',
+  D: 'Group 4 - Deira / Garhoud / Mirdif / Al Warqa',
+};
+
 const defaultGroupPlayers: Record<GroupId, Array<{ seed: number; name: string }>> = {
   A: [
-    { seed: 1, name: 'Abhishek Arora' },
-    { seed: 8, name: 'Mohamed Faraz' },
-    { seed: 9, name: 'Abdalrahman Nasser' },
-    { seed: 16, name: 'Rizwan Siddiqi' },
-    { seed: 17, name: 'Rehan Saleh' },
-    { seed: 24, name: 'Jake Cowling' },
-    { seed: 25, name: 'Toni' },
+    { seed: 1, name: 'Chirag Patel' },
+    { seed: 2, name: 'Lee Elliott' },
+    { seed: 3, name: 'Sukesh Raj Suvarna' },
+    { seed: 4, name: 'Vishal Wadhwa' },
+    { seed: 5, name: 'Rakesh Das' },
+    { seed: 6, name: 'Omar Hamid' },
   ],
   B: [
-    { seed: 2, name: 'Chirag Patel' },
-    { seed: 7, name: 'Asim Ali' },
-    { seed: 10, name: 'Naveen Upadhyay' },
-    { seed: 15, name: 'Niyaz Husain' },
-    { seed: 18, name: 'Asif Khan Yousafzai' },
-    { seed: 23, name: 'Vikas Vicky Bach' },
-    { seed: 26, name: 'Saarim Alvi' },
+    { seed: 1, name: 'Asim Ali' },
+    { seed: 2, name: 'Eslam Ibrahim' },
+    { seed: 3, name: 'Dominique Collin' },
+    { seed: 4, name: 'Rizwan Siddiqi' },
+    { seed: 5, name: 'Clysses Jotrin' },
+    { seed: 6, name: 'Vikas Vicky Bach' },
+    { seed: 7, name: 'Jake Cowling' },
   ],
   C: [
-    { seed: 3, name: 'Lee Elliott' },
-    { seed: 6, name: 'Vishal Wadhwa' },
-    { seed: 11, name: 'Eslam Ibrahim' },
-    { seed: 14, name: 'Rakesh Das' },
-    { seed: 19, name: 'Saboor Alvi' },
-    { seed: 22, name: 'Omar Hamieh' },
-    { seed: 27, name: 'Tba' },
+    { seed: 1, name: 'Abhishek Arora' },
+    { seed: 2, name: 'Abdalrahman Nasser' },
+    { seed: 3, name: 'Rehan Saleh' },
+    { seed: 4, name: 'Asif Khan Yousafzai' },
+    { seed: 5, name: 'Swapnil Satapathy' },
+    { seed: 6, name: 'Toni' },
   ],
   D: [
-    { seed: 4, name: 'Sukesh Raj Suvarna' },
-    { seed: 5, name: 'Goldi Gupta' },
-    { seed: 12, name: 'Syed Mohammad Alvi' },
-    { seed: 13, name: 'Dominique Collin' },
-    { seed: 20, name: 'Swapnil Satapathy' },
-    { seed: 21, name: 'Clysses Jotrin' },
-    { seed: 28, name: 'Tba' },
+    { seed: 1, name: 'Goldi Gupta' },
+    { seed: 2, name: 'Mohamed Faraz' },
+    { seed: 3, name: 'Naveen Upadhyay' },
+    { seed: 4, name: 'Syed Mohammad Alvi' },
+    { seed: 5, name: 'Niyaz Husain' },
+    { seed: 6, name: 'Saboor Alvi' },
+    { seed: 7, name: 'Saarim Alvi' },
   ],
 };
 
 const playerCountries: Record<string, { nationality: string; flag: string }> = {
-  'Abhishek Arora': { nationality: 'India', flag: '🇮🇳' },
+  'Asif Khan Yousafzai': { nationality: 'Pakistan', flag: '🇵🇰' },
+  'Asim Ali': { nationality: 'Pakistan', flag: '🇵🇰' },
   'Rizwan Siddiqi': { nationality: 'Pakistan', flag: '🇵🇰' },
-  'Rehan Saleh': { nationality: 'Pakistan', flag: '🇵🇰' },
+  'Eslam Ibrahim': { nationality: 'Egypt', flag: '🇪🇬' },
   'Chirag Patel': { nationality: 'England', flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿' },
-  'Niyaz Husain': { nationality: 'India', flag: '🇮🇳' },
   'Lee Elliott': { nationality: 'England', flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿' },
-  'Vishal Wadhwa': { nationality: 'India', flag: '🇮🇳' },
+  'Jake Cowling': { nationality: 'Australia', flag: '🇦🇺' },
+  'Goldi Gupta': { nationality: 'Singapore', flag: '🇸🇬' },
+  'Mohamed Faraz': { nationality: 'India', flag: '🇮🇳' },
+  'Niyaz Husain': { nationality: 'India', flag: '🇮🇳' },
+  'Rakesh Das': { nationality: 'India', flag: '🇮🇳' },
+  'Saarim Alvi': { nationality: 'India', flag: '🇮🇳' },
+  'Saboor Alvi': { nationality: 'India', flag: '🇮🇳' },
   'Sukesh Raj Suvarna': { nationality: 'India', flag: '🇮🇳' },
-  'Goldi Gupta': { nationality: 'India', flag: '🇮🇳' },
+  'Swapnil Satapathy': { nationality: 'India', flag: '🇮🇳' },
+  'Vishal Wadhwa': { nationality: 'India', flag: '🇮🇳' },
 };
 
 const courts = ['Court 1', 'Court 2', 'Court 3', 'Centre Court'];
@@ -170,10 +183,15 @@ export const defaultTournament: Tournament = (() => {
     championLabel: 'Champion',
     championMeta: 'decided 3 October · Centre Court',
     accentColor: 'oklch(0.58 0.13 45)',
+    groupLabels: defaultGroupLabels,
     players,
     matches: [],
   };
 })();
+
+export function groupLabel(tournament: Tournament, group: GroupId) {
+  return tournament.groupLabels?.[group] ?? defaultGroupLabels[group] ?? `Group ${group}`;
+}
 
 export function playerName(tournament: Tournament, idOrName: string) {
   return tournament.players.find((player) => player.id === idOrName)?.name ?? idOrName;
@@ -330,6 +348,10 @@ export function sanitizeTournament(input: Tournament): Tournament {
   return {
     ...defaultTournament,
     ...input,
+    groupLabels: {
+      ...defaultTournament.groupLabels,
+      ...(input.groupLabels ?? {}),
+    },
     players: Array.isArray(input.players)
       ? input.players.map((player) => {
           const fallback = defaultTournament.players.find((item) => item.id === player.id);

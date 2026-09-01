@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   BracketMatch,
   GroupId,
@@ -28,6 +28,8 @@ export default function TournamentClient() {
   const [tab, setTab] = useState<'groups' | 'bracket'>('groups');
   const [group, setGroup] = useState<GroupId>('A');
   const [detailId, setDetailId] = useState<string | null>(null);
+  const [videoMuted, setVideoMuted] = useState(true);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => {
     fetch('/api/tournament')
@@ -55,6 +57,15 @@ export default function TournamentClient() {
     setDetailId(null);
   }
 
+  function toggleVideoSound() {
+    const nextMuted = !videoMuted;
+    setVideoMuted(nextMuted);
+    if (videoRef.current) {
+      videoRef.current.muted = nextMuted;
+      if (!nextMuted) videoRef.current.play().catch(() => undefined);
+    }
+  }
+
   return (
     <main className="site-shell" style={{ ['--accent' as string]: tournament.accentColor }}>
       <header className="site-header">
@@ -75,9 +86,12 @@ export default function TournamentClient() {
       </header>
 
       <section className="tournament-video" aria-label="JUST Tennis US Open video">
-        <video autoPlay controls loop muted playsInline preload="metadata">
+        <video ref={videoRef} autoPlay loop muted={videoMuted} playsInline preload="metadata">
           <source src="/just-tennis-us-open.mp4" type="video/mp4" />
         </video>
+        <button aria-label={videoMuted ? 'Turn video sound on' : 'Turn video sound off'} onClick={toggleVideoSound}>
+          {videoMuted ? '🔇' : '🔊'}
+        </button>
       </section>
 
       <nav className="tabs" aria-label="Tournament views">

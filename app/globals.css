@@ -142,6 +142,7 @@ h1 {
 }
 
 .tournament-video {
+  position: relative;
   max-width: 1480px;
   margin: 0 auto;
   padding: 18px 48px 0;
@@ -156,6 +157,21 @@ h1 {
   border-radius: 3px;
   background: black;
   object-fit: cover;
+}
+
+.tournament-video button {
+  position: absolute;
+  right: 64px;
+  bottom: 16px;
+  width: 44px;
+  height: 44px;
+  border: 1px solid oklch(1 0 0 / 0.42);
+  border-radius: 999px;
+  background: oklch(0.18 0.015 250 / 0.72);
+  color: white;
+  font-size: 20px;
+  line-height: 1;
+  backdrop-filter: blur(10px);
 }
 
 .tabs {
@@ -976,6 +992,10 @@ h1 {
 
   .brand-logos {
     flex-wrap: wrap;
+  }
+
+  .tournament-video button {
+    right: 34px;
   }
 
   .bracket-grid {

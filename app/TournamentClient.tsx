@@ -66,6 +66,67 @@ export default function TournamentClient() {
     }
   }
 
+  function downloadTournamentData() {
+    const rows: string[][] = [
+      ['Just Tennis US Open Export'],
+      ['Generated', new Date().toLocaleString()],
+      [],
+      ['Group Standings'],
+      ['Group', 'Rank', 'Player', 'Nationality', 'Played', 'Won', 'Lost', 'Points For', 'Points Against', 'Difference'],
+    ];
+
+    groups.forEach((gid) => {
+      standingsFor(tournament, gid).forEach((row, index) => {
+        rows.push([
+          groupLabel(tournament, gid),
+          String(index + 1),
+          row.player.name,
+          row.player.nationality,
+          String(row.played),
+          String(row.won),
+          String(row.lost),
+          String(row.gf),
+          String(row.ga),
+          String(row.diff),
+        ]);
+      });
+    });
+
+    rows.push(
+      [],
+      ['Group Stage Match Results'],
+      ['Group', 'Match', 'Date', 'Court', 'Player A', 'Player B', 'Final Score', 'Points A', 'Points B', 'Winner', 'Status'],
+    );
+
+    tournament.matches
+      .filter((match) => match.stage === 'round-robin')
+      .forEach((match) => {
+        const winner = match.winner === 0 ? playerName(tournament, match.a) : match.winner === 1 ? playerName(tournament, match.b) : '';
+        rows.push([
+          match.group ? groupLabel(tournament, match.group) : '',
+          match.slot,
+          [match.day, match.when].filter(Boolean).join(' '),
+          match.court,
+          playerName(tournament, match.a),
+          playerName(tournament, match.b),
+          scoreText(match),
+          match.pointsA === null ? '' : String(match.pointsA),
+          match.pointsB === null ? '' : String(match.pointsB),
+          winner,
+          match.status,
+        ]);
+      });
+
+    const csv = rows.map((row) => row.map(csvCell).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'just-tennis-us-open-data.csv';
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
   return (
     <main className="site-shell" style={{ ['--accent' as string]: tournament.accentColor }}>
       <header className="site-header">
@@ -77,11 +138,14 @@ export default function TournamentClient() {
           <div className="eyebrow">{tournament.club}</div>
           <h1>{tournament.title}</h1>
         </div>
-        <div className="stats">
-          <Stat value={tournament.players.length} label="players" />
-          <Stat value={groups.length} label="groups" />
-          <Stat value={`${playedCount}/${totalGroupCapacity}`} label={tournament.roundRobinLabel} />
-          <Stat value={qualifierCount} label={tournament.qualifyLabel} />
+        <div className="header-tools">
+          <div className="stats">
+            <Stat value={tournament.players.length} label="players" />
+            <Stat value={groups.length} label="groups" />
+            <Stat value={`${playedCount}/${totalGroupCapacity}`} label={tournament.roundRobinLabel} />
+            <Stat value={qualifierCount} label={tournament.qualifyLabel} />
+          </div>
+          <button className="download-button" onClick={downloadTournamentData}>Download data</button>
         </div>
       </header>
 
@@ -192,6 +256,11 @@ export default function TournamentClient() {
 
 function Stat({ value, label }: { value: string | number; label: string }) {
   return <div><strong>{value}</strong>{label}</div>;
+}
+
+function csvCell(value: string) {
+  if (/[",\n]/.test(value)) return `"${value.replaceAll('"', '""')}"`;
+  return value;
 }
 
 function Round({ title, when, pad, matches, detailId, open }: { title: string; when: string; pad: string; matches: BracketMatch[]; detailId: string | null; open: (id: string) => void }) {

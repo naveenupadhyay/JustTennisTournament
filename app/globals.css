@@ -343,6 +343,67 @@ h1 {
   line-height: 1;
 }
 
+.points-system {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+  gap: 20px;
+  align-items: center;
+  margin-top: 24px;
+  padding: 18px 20px;
+  border-top: 1px solid var(--line-strong);
+  border-bottom: 1px solid var(--line-strong);
+  background: var(--highlight);
+}
+
+.points-system h2 {
+  margin: 0 0 6px;
+  font-family: var(--font-serif), Georgia, serif;
+  font-size: 28px;
+  font-weight: 400;
+}
+
+.points-system p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.points-system ul {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.points-system li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+}
+
+.points-system strong {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  color: var(--accent);
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.points-system span {
+  color: var(--ink);
+  font-size: 13px;
+  line-height: 1.35;
+}
+
 .matches-section {
   margin-top: 40px;
 }
@@ -1002,6 +1063,10 @@ h1 {
     grid-template-columns: 1fr;
   }
 
+  .points-system {
+    grid-template-columns: 1fr;
+  }
+
   .round-matches {
     padding-top: 0 !important;
   }
@@ -1024,5 +1089,9 @@ h1 {
 
   .match-row > span:last-child {
     white-space: nowrap;
+  }
+
+  .points-system ul {
+    grid-template-columns: 1fr;
   }
 }

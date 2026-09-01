@@ -137,6 +137,17 @@ export default function TournamentClient() {
             })}
           </div>
 
+          <section className="points-system" aria-label="Points system">
+            <div>
+              <h2>Points system</h2>
+              <p>Group matches may be played as either one set or best of 3 sets. The third set may be a tie-break game instead.</p>
+            </div>
+            <ul>
+              <li><strong>2</strong><span>points for every set won</span></li>
+              <li><strong>5</strong><span>points for winning the match</span></li>
+            </ul>
+          </section>
+
           <section className="matches-section">
             <div className="section-head">
               <h2>{groupLabel(tournament, group)} · round robin</h2>

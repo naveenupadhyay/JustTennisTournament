@@ -76,7 +76,7 @@ export default function TournamentClient() {
           </div>
           <div className="eyebrow">{tournament.club}</div>
           <h1>{tournament.title}</h1>
-          <p className="event-dates">Sep 1 - Oct 1</p>
+          <p className="event-dates">Sep 1 to Oct 1, 2026</p>
         </div>
         <div className="header-tools">
           <div className="stats">

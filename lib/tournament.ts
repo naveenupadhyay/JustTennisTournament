@@ -108,6 +108,7 @@ const defaultGroupPlayers: Record<GroupId, Array<{ seed: number; name: string }>
 const playerCountries: Record<string, { nationality: string; flag: string }> = {
   'Asif Khan Yousafzai': { nationality: 'Pakistan', flag: '🇵🇰' },
   'Asim Ali': { nationality: 'Pakistan', flag: '🇵🇰' },
+  'Dominique Collin': { nationality: 'Netherlands', flag: '🇳🇱' },
   'Rizwan Siddiqi': { nationality: 'Pakistan', flag: '🇵🇰' },
   'Eslam Ibrahim': { nationality: 'Egypt', flag: '🇪🇬' },
   'Chirag Patel': { nationality: 'England', flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿' },

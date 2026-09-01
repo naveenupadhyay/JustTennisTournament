@@ -99,6 +99,18 @@ const defaultGroupPlayers: Record<GroupId, Array<{ seed: number; name: string }>
   ],
 };
 
+const playerCountries: Record<string, { nationality: string; flag: string }> = {
+  'Abhishek Arora': { nationality: 'India', flag: '🇮🇳' },
+  'Rizwan Siddiqi': { nationality: 'Pakistan', flag: '🇵🇰' },
+  'REHAN SALEH': { nationality: 'Pakistan', flag: '🇵🇰' },
+  'Chirag Patel': { nationality: 'India', flag: '🇮🇳' },
+  'Niyaz Husain': { nationality: 'India', flag: '🇮🇳' },
+  'Lee Elliott': { nationality: 'United Kingdom', flag: '🇬🇧' },
+  'Vishal Wadhwa': { nationality: 'India', flag: '🇮🇳' },
+  'Sukesh Raj Suvarna': { nationality: 'India', flag: '🇮🇳' },
+  'Goldi Gupta': { nationality: 'India', flag: '🇮🇳' },
+};
+
 const courts = ['Court 1', 'Court 2', 'Court 3', 'Centre Court'];
 const days = ['Sat 30 Aug', 'Sun 31 Aug', 'Sat 6 Sep', 'Sun 7 Sep'];
 
@@ -137,12 +149,13 @@ export const defaultTournament: Tournament = (() => {
   const groups = Object.keys(defaultGroupPlayers) as GroupId[];
   const players = groups.flatMap((group) =>
     defaultGroupPlayers[group].map((player, index) => {
+      const country = playerCountries[player.name];
       return {
       id: `${group}${index + 1}`,
       group,
       name: player.name,
-      nationality: '',
-      flag: '🏳️',
+      nationality: country?.nationality ?? '',
+      flag: country?.flag ?? '🏳️',
       seed: player.seed,
       };
     }),

@@ -99,6 +99,8 @@ function buildTournamentSnapshotHtml(tournament: Tournament) {
   const origin = typeof window === 'undefined' ? '' : window.location.origin;
   const playedCount = tournament.matches.filter((match) => match.group && match.status === 'played').length;
   const totalGroupCapacity = totalRoundRobinCapacity(tournament);
+  const remainingCount = Math.max(0, totalGroupCapacity - playedCount);
+  const progress = totalGroupCapacity > 0 ? Math.round((playedCount / totalGroupCapacity) * 100) : 0;
   const qualifierCount = groups.reduce((total, gid) => total + Math.min(2, tournament.players.filter((player) => player.group === gid).length), 0);
 
   return `<!doctype html>
@@ -106,7 +108,7 @@ function buildTournamentSnapshotHtml(tournament: Tournament) {
   <head>
     <meta charset="utf-8" />
     <title>Just Tennis US Open Snapshot</title>
-    <style>${snapshotCss(tournament.accentColor)}</style>
+    <style>${snapshotCss(tournament.accentColor, progress)}</style>
   </head>
   <body>
     <main>
@@ -120,11 +122,22 @@ function buildTournamentSnapshotHtml(tournament: Tournament) {
           <h1>${escapeHtml(tournament.title)}</h1>
           <p class="event-dates">Sep 1 to Oct 1, 2026</p>
         </div>
-        <div class="stats">
-          <div><strong>${tournament.players.length}</strong><span>players</span></div>
-          <div><strong>${groups.length}</strong><span>groups</span></div>
-          <div><strong>${playedCount}/${totalGroupCapacity}</strong><span>${escapeHtml(tournament.roundRobinLabel)}</span></div>
-          <div><strong>${qualifierCount}</strong><span>${escapeHtml(tournament.qualifyLabel)}</span></div>
+        <div class="snapshot-summary">
+          <div class="progress-card">
+            <div class="progress-pie" aria-label="${playedCount} of ${totalGroupCapacity} matches played">
+              <span>${progress}%</span>
+            </div>
+            <div>
+              <p>Group match progress</p>
+              <strong>${playedCount} of ${totalGroupCapacity}</strong>
+              <span>${remainingCount} remaining</span>
+            </div>
+          </div>
+          <div class="stats">
+            <div><strong>${tournament.players.length}</strong><span>players</span></div>
+            <div><strong>${groups.length}</strong><span>groups</span></div>
+            <div><strong>${qualifierCount}</strong><span>${escapeHtml(tournament.qualifyLabel)}</span></div>
+          </div>
         </div>
       </header>
       <section class="groups">
@@ -181,7 +194,7 @@ function snapshotMatch(tournament: Tournament, match: Match) {
   </article>`;
 }
 
-function snapshotCss(accentColor: string) {
+function snapshotCss(accentColor: string, progress: number) {
   return `
     :root {
       --page: oklch(0.965 0.012 80);
@@ -248,6 +261,69 @@ function snapshotCss(accentColor: string) {
     }
     .stats strong { display: block; color: var(--ink); font-size: 22px; font-weight: 400; text-transform: none; }
     .stats span { display: block; }
+    .snapshot-summary {
+      display: grid;
+      gap: 14px;
+      min-width: 360px;
+    }
+    .progress-card {
+      display: grid;
+      grid-template-columns: 118px 1fr;
+      align-items: center;
+      gap: 18px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+    }
+    .progress-pie {
+      position: relative;
+      display: grid;
+      width: 118px;
+      height: 118px;
+      place-items: center;
+      border-radius: 999px;
+      background: conic-gradient(var(--accent) 0 ${progress}%, var(--line-soft) ${progress}% 100%);
+    }
+    .progress-pie::after {
+      position: absolute;
+      inset: 18px;
+      border-radius: inherit;
+      background: var(--surface);
+      content: '';
+    }
+    .progress-pie span {
+      position: relative;
+      z-index: 1;
+      color: var(--ink);
+      font-family: Georgia, serif;
+      font-size: 28px;
+      line-height: 1;
+    }
+    .progress-card p {
+      margin: 0 0 8px;
+      color: var(--muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .progress-card strong {
+      display: block;
+      color: var(--ink);
+      font-family: Georgia, serif;
+      font-size: 28px;
+      font-weight: 400;
+      line-height: 1.05;
+    }
+    .progress-card div > span {
+      display: block;
+      margin-top: 7px;
+      color: var(--muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 11px;
+      text-transform: uppercase;
+    }
     .groups {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));

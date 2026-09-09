@@ -101,6 +101,7 @@ function buildTournamentSnapshotHtml(tournament: Tournament) {
   const totalGroupCapacity = totalRoundRobinCapacity(tournament);
   const remainingCount = Math.max(0, totalGroupCapacity - playedCount);
   const progress = totalGroupCapacity > 0 ? Math.round((playedCount / totalGroupCapacity) * 100) : 0;
+  const progressMidpoint = Math.round(progress / 2);
   const qualifierCount = groups.reduce((total, gid) => total + Math.min(2, tournament.players.filter((player) => player.group === gid).length), 0);
 
   return `<!doctype html>
@@ -108,7 +109,7 @@ function buildTournamentSnapshotHtml(tournament: Tournament) {
   <head>
     <meta charset="utf-8" />
     <title>Just Tennis US Open Snapshot</title>
-    <style>${snapshotCss(tournament.accentColor, progress)}</style>
+    <style>${snapshotCss(tournament.accentColor, progress, progressMidpoint)}</style>
   </head>
   <body>
     <main>
@@ -131,6 +132,10 @@ function buildTournamentSnapshotHtml(tournament: Tournament) {
               <p>Group match progress</p>
               <strong>${playedCount} of ${totalGroupCapacity}</strong>
               <span>${remainingCount} remaining</span>
+              <div class="progress-legend">
+                <span><i class="played-dot"></i>Played</span>
+                <span><i class="remaining-dot"></i>Remaining</span>
+              </div>
             </div>
           </div>
           <div class="stats">
@@ -194,7 +199,7 @@ function snapshotMatch(tournament: Tournament, match: Match) {
   </article>`;
 }
 
-function snapshotCss(accentColor: string, progress: number) {
+function snapshotCss(accentColor: string, progress: number, progressMidpoint: number) {
   return `
     :root {
       --page: oklch(0.965 0.012 80);
@@ -283,7 +288,8 @@ function snapshotCss(accentColor: string, progress: number) {
       height: 118px;
       place-items: center;
       border-radius: 999px;
-      background: conic-gradient(var(--accent) 0 ${progress}%, var(--line-soft) ${progress}% 100%);
+      background: conic-gradient(#16a34a 0 ${progressMidpoint}%, #2563eb ${progressMidpoint}% ${progress}%, #f59e0b ${progress}% 100%);
+      box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.55), 0 10px 24px rgb(37 99 235 / 0.18);
     }
     .progress-pie::after {
       position: absolute;
@@ -323,6 +329,34 @@ function snapshotCss(accentColor: string, progress: number) {
       font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
       font-size: 11px;
       text-transform: uppercase;
+    }
+    .progress-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 12px;
+      margin-top: 12px;
+      color: var(--muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .progress-legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .progress-legend i {
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      content: '';
+    }
+    .played-dot {
+      background: linear-gradient(135deg, #16a34a, #2563eb);
+    }
+    .remaining-dot {
+      background: #f59e0b;
     }
     .groups {
       display: grid;

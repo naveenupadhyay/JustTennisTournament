@@ -284,6 +284,15 @@ h1 {
   color: var(--accent);
 }
 
+.group-progress,
+.results-group-head span {
+  color: var(--muted);
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
 .group-card table,
 .score-table {
   width: 100%;
@@ -462,6 +471,39 @@ h1 {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
   gap: 0 32px;
+}
+
+.results-groups {
+  display: grid;
+  gap: 18px;
+}
+
+.results-group {
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.results-group-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--line-soft);
+  background: var(--highlight);
+}
+
+.results-group-head h3 {
+  margin: 0;
+  font-family: var(--font-serif), Georgia, serif;
+  font-size: 23px;
+  font-weight: 400;
+}
+
+.results-group .match-list {
+  padding: 0 12px 8px;
 }
 
 .match-row {

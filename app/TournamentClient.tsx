@@ -26,7 +26,6 @@ type TournamentResponse = { tournament: Tournament };
 export default function TournamentClient() {
   const [tournament, setTournament] = useState<Tournament>(defaultTournament);
   const [tab, setTab] = useState<'groups' | 'bracket'>('groups');
-  const [group, setGroup] = useState<GroupId>('A');
   const [detailId, setDetailId] = useState<string | null>(null);
   const [videoMuted, setVideoMuted] = useState(true);
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -38,11 +37,8 @@ export default function TournamentClient() {
       .catch(() => setTournament(defaultTournament));
   }, []);
 
-  const groupMatches = tournament.matches.filter((match) => match.group === group);
   const bracketMatches = tournament.matches.filter((match) => !match.group);
   const playedCount = tournament.matches.filter((match) => match.group && match.status === 'played').length;
-  const groupMatchCount = groupMatches.length;
-  const groupCapacity = roundRobinCapacityForGroup(tournament, group);
   const totalGroupCapacity = totalRoundRobinCapacity(tournament);
   const qualifierCount = groups.reduce((total, gid) => total + Math.min(2, tournament.players.filter((player) => player.group === gid).length), 0);
   const detail = useMemo<DetailMatch | null>(() => {
@@ -111,9 +107,7 @@ export default function TournamentClient() {
                 <section className="group-card" key={gid}>
                   <div className="group-head">
                     <h2>{groupLabel(tournament, gid)}</h2>
-                    <button className={group === gid ? 'showing' : ''} onClick={() => setGroup(gid)}>
-                      {group === gid ? 'showing results' : 'view results'}
-                    </button>
+                    <span className="group-progress">{tournament.matches.filter((match) => match.group === gid).length}/{roundRobinCapacityForGroup(tournament, gid)} matches</span>
                   </div>
                   <table>
                     <thead>
@@ -153,24 +147,37 @@ export default function TournamentClient() {
 
           <section className="matches-section">
             <div className="section-head">
-              <h2>{groupLabel(tournament, group)} · round robin</h2>
-              <span>{groupMatchCount}/{groupCapacity} matches added · tap a match for the score sheet</span>
+              <h2>All group results</h2>
+              <span>{playedCount}/{totalGroupCapacity} group matches played · tap any match for the score sheet</span>
             </div>
-            <div className="match-list">
-              {groupMatches.length > 0 ? (
-                groupMatches.map((match) => (
-                  <button className={detailId === match.id ? 'match-row selected' : 'match-row'} key={match.id} onClick={() => setDetailId(match.id)}>
-                    <span>{match.slot}</span>
-                    <span>
-                      <strong className={match.winner === 0 ? 'winner' : ''}><span>{playerFlag(tournament, match.a)}</span>{playerName(tournament, match.a)}</strong>
-                      <strong className={match.winner === 1 ? 'winner' : ''}><span>{playerFlag(tournament, match.b)}</span>{playerName(tournament, match.b)}</strong>
-                    </span>
-                    <span>{scoreText(match)}</span>
-                  </button>
-                ))
-              ) : (
-                <p className="empty-state">No matches added for {groupLabel(tournament, group)} yet.</p>
-              )}
+            <div className="results-groups">
+              {groups.map((gid) => {
+                const matches = tournament.matches.filter((match) => match.group === gid);
+                return (
+                  <section className="results-group" key={gid}>
+                    <div className="results-group-head">
+                      <h3>{groupLabel(tournament, gid)}</h3>
+                      <span>{matches.length}/{roundRobinCapacityForGroup(tournament, gid)} added</span>
+                    </div>
+                    <div className="match-list">
+                      {matches.length > 0 ? (
+                        matches.map((match) => (
+                          <button className={detailId === match.id ? 'match-row selected' : 'match-row'} key={match.id} onClick={() => setDetailId(match.id)}>
+                            <span>{match.day || 'Match'}</span>
+                            <span>
+                              <strong className={match.winner === 0 ? 'winner' : ''}><span>{playerFlag(tournament, match.a)}</span>{playerName(tournament, match.a)}</strong>
+                              <strong className={match.winner === 1 ? 'winner' : ''}><span>{playerFlag(tournament, match.b)}</span>{playerName(tournament, match.b)}</strong>
+                            </span>
+                            <span>{scoreText(match)}</span>
+                          </button>
+                        ))
+                      ) : (
+                        <p className="empty-state compact">No matches added for this group yet.</p>
+                      )}
+                    </div>
+                  </section>
+                );
+              })}
             </div>
           </section>
         </section>

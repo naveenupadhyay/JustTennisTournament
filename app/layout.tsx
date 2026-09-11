@@ -16,8 +16,8 @@ export const metadata: Metadata = {
     images: [
       {
         url: '/whatsapp-preview.png',
-        width: 828,
-        height: 392,
+        width: 1200,
+        height: 630,
         alt: 'Just Tennis US Open tournament preview',
       },
     ],

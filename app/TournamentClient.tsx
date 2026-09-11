@@ -88,6 +88,10 @@ export default function TournamentClient() {
         </div>
       </header>
 
+      <section className="host-photo" aria-label="Tournament host photo">
+        <img src="/naveen-tennis.png" alt="Naveen Upadhyay holding a tennis racket" />
+      </section>
+
       <section className="tournament-video" aria-label="JUST Tennis US Open video">
         <video ref={videoRef} autoPlay loop muted={videoMuted} playsInline preload="metadata">
           <source src="/just-tennis-us-open.mp4" type="video/mp4" />

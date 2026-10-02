@@ -377,6 +377,10 @@ h1 {
   line-height: 1.5;
 }
 
+.points-system .points-note {
+  margin-top: 8px;
+}
+
 .points-system ul {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

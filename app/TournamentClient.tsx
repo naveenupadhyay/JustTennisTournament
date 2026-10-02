@@ -118,6 +118,7 @@ export default function TournamentClient() {
             <div>
               <h2>Points system</h2>
               <p>Group matches may be played as either one set or best of 3 sets. The third set may be a tie-break game instead.</p>
+              <p className="points-note">If a player marks themselves unavailable to play in the designated zone location and forfeits the match, the opponent receives the 5 victory points. For incomplete matches, set points are awarded as applicable.</p>
             </div>
             <ul>
               <li><strong>2</strong><span>points for every set won</span></li>

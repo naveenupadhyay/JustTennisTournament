@@ -183,7 +183,7 @@ export const defaultTournament: Tournament = (() => {
     roundRobinLabel: 'RR matches',
     qualifyLabel: 'qualify',
     championLabel: 'Champion',
-    championMeta: 'decided 3 October · Centre Court',
+    championMeta: 'decided 16 October · Centre Court',
     accentColor: 'oklch(0.58 0.13 45)',
     groupLabels: defaultGroupLabels,
     players,

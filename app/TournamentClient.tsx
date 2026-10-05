@@ -24,7 +24,7 @@ type TournamentResponse = { tournament: Tournament };
 
 export default function TournamentClient() {
   const [tournament, setTournament] = useState<Tournament>(defaultTournament);
-  const [tab, setTab] = useState<'groups' | 'bracket'>('groups');
+  const [tab, setTab] = useState<'groups' | 'bracket'>('bracket');
   const [detailId, setDetailId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -129,9 +129,9 @@ export default function TournamentClient() {
       ) : (
         <section className="page-section bracket-section">
           <div className="bracket-grid">
-            <Round title="Quarter-finals" when="21 September" pad="0" matches={bracketMatches.filter((match) => match.stage === 'quarter-final').map((match) => resolveBracketMatch(tournament, match))} detailId={detailId} open={setDetailId} />
-            <Round title="Semi-finals" when="28 September" pad="56px" matches={bracketMatches.filter((match) => match.stage === 'semi-final').map((match) => resolveBracketMatch(tournament, match))} detailId={detailId} open={setDetailId} />
-            <Round title="Final" when="3 October" pad="148px" matches={bracketMatches.filter((match) => match.stage === 'final').map((match) => resolveBracketMatch(tournament, match))} detailId={detailId} open={setDetailId} />
+            <Round title="Quarter-finals" when="6 October" pad="0" matches={bracketMatches.filter((match) => match.stage === 'quarter-final').map((match) => resolveBracketMatch(tournament, match))} detailId={detailId} open={setDetailId} />
+            <Round title="Semi-finals" when="11 October" pad="56px" matches={bracketMatches.filter((match) => match.stage === 'semi-final').map((match) => resolveBracketMatch(tournament, match))} detailId={detailId} open={setDetailId} />
+            <Round title="Final" when="16 October" pad="148px" matches={bracketMatches.filter((match) => match.stage === 'final').map((match) => resolveBracketMatch(tournament, match))} detailId={detailId} open={setDetailId} />
           </div>
           <div className="champion-strip">
             <h2>{tournament.championLabel}</h2>

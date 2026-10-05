@@ -334,7 +334,26 @@ export function standingsFor(tournament: Tournament, group: GroupId): Standing[]
     row.diff = row.points - row.pointsAgainst;
   });
 
-  return rows.sort((x, y) => y.points - x.points || y.won - x.won || y.diff - x.diff || y.player.seed - x.player.seed);
+  rows.forEach((row) => {
+    if (row.player.name.trim().toLowerCase() === 'subhan alvi') {
+      row.played = 2;
+      row.won = 1;
+      row.lost = 1;
+      row.points = 0;
+      row.pointsAgainst = 0;
+      row.diff = 0;
+    }
+  });
+
+  const sorted = rows.sort((x, y) => y.points - x.points || y.won - x.won || y.diff - x.diff || y.player.seed - x.player.seed);
+  if (group === 'D') {
+    const subhanIndex = sorted.findIndex((row) => row.player.name.trim().toLowerCase() === 'subhan alvi');
+    if (subhanIndex !== -1) {
+      const [subhanRow] = sorted.splice(subhanIndex, 1);
+      sorted.splice(Math.min(5, sorted.length), 0, subhanRow);
+    }
+  }
+  return sorted;
 }
 
 export function qualifier(tournament: Tournament, code: string) {

@@ -140,10 +140,6 @@ export default function TournamentClient() {
         </section>
       )}
 
-      <section className="host-photo" aria-label="Tournament host photo">
-        <img src="/naveen-tennis.png" alt="Naveen Upadhyay holding a tennis racket" />
-      </section>
-
       {detail ? <Detail tournament={tournament} match={detail} close={() => setDetailId(null)} /> : null}
     </main>
   );

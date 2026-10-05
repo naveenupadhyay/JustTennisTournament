@@ -51,7 +51,7 @@ export default function Image() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
           <div style={{ fontSize: 88, fontWeight: 800, lineHeight: 1.02 }}>Just Tennis US Open</div>
           <div style={{ width: 760, color: '#dce8ff', fontSize: 34, lineHeight: 1.25 }}>
-            Live league tables, match results, and knockout bracket.
+            Live league tables and knockout bracket.
           </div>
         </div>
 

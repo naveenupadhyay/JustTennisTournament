@@ -8,7 +8,6 @@ import {
   Tournament,
   defaultTournament,
   groupLabel,
-  playerFlag,
   playerName,
   resolveBracketMatch,
   roundRobinCapacityForGroup,
@@ -126,41 +125,6 @@ export default function TournamentClient() {
             </ul>
           </section>
 
-          <section className="matches-section">
-            <div className="section-head">
-              <h2>All group results</h2>
-              <span>{playedCount}/{totalGroupCapacity} group matches played · tap any match for the score sheet</span>
-            </div>
-            <div className="results-groups">
-              {groups.map((gid) => {
-                const matches = tournament.matches.filter((match) => match.group === gid);
-                return (
-                  <section className="results-group" key={gid}>
-                    <div className="results-group-head">
-                      <h3>{groupLabel(tournament, gid)}</h3>
-                      <span>{matches.length}/{roundRobinCapacityForGroup(tournament, gid)} added</span>
-                    </div>
-                    <div className="match-list">
-                      {matches.length > 0 ? (
-                        matches.map((match) => (
-                          <button className={detailId === match.id ? 'match-row selected' : 'match-row'} key={match.id} onClick={() => setDetailId(match.id)}>
-                            <span>{match.day || 'Match'}</span>
-                            <span>
-                              <strong className={match.winner === 0 ? 'winner' : ''}><span>{playerFlag(tournament, match.a)}</span>{playerName(tournament, match.a)}</strong>
-                              <strong className={match.winner === 1 ? 'winner' : ''}><span>{playerFlag(tournament, match.b)}</span>{playerName(tournament, match.b)}</strong>
-                            </span>
-                            <span>{scoreText(match)}</span>
-                          </button>
-                        ))
-                      ) : (
-                        <p className="empty-state compact">No matches added for this group yet.</p>
-                      )}
-                    </div>
-                  </section>
-                );
-              })}
-            </div>
-          </section>
         </section>
       ) : (
         <section className="page-section bracket-section">

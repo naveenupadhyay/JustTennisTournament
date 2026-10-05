@@ -7,10 +7,10 @@ export const metadata: Metadata = {
     default: 'Just Tennis US Open',
     template: '%s · Just Tennis US Open',
   },
-  description: 'Follow the Just Tennis US Open Edition league tables, match results, and knockout bracket.',
+  description: 'Follow the Just Tennis US Open Edition league tables and knockout bracket.',
   openGraph: {
     title: 'Just Tennis US Open',
-    description: 'League tables, match results, and knockout bracket for the Just Tennis US Open Edition.',
+    description: 'League tables and knockout bracket for the Just Tennis US Open Edition.',
     url: '/',
     siteName: 'Just Tennis US Open',
     images: [
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Just Tennis US Open',
-    description: 'League tables, match results, and knockout bracket for the Just Tennis US Open Edition.',
+    description: 'League tables and knockout bracket for the Just Tennis US Open Edition.',
     images: ['/whatsapp-preview.png'],
   },
 };

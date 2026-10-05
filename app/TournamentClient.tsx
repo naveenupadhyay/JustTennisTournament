@@ -5,6 +5,7 @@ import {
   BracketMatch,
   GroupId,
   Match,
+  Player,
   Tournament,
   defaultTournament,
   groupLabel,
@@ -129,9 +130,9 @@ export default function TournamentClient() {
       ) : (
         <section className="page-section bracket-section">
           <div className="bracket-grid">
-            <Round title="Quarter-finals" when="6 October" pad="0" matches={bracketMatches.filter((match) => match.stage === 'quarter-final').map((match) => resolveBracketMatch(tournament, match))} detailId={detailId} open={setDetailId} />
-            <Round title="Semi-finals" when="11 October" pad="56px" matches={bracketMatches.filter((match) => match.stage === 'semi-final').map((match) => resolveBracketMatch(tournament, match))} detailId={detailId} open={setDetailId} />
-            <Round title="Final" when="16 October" pad="148px" matches={bracketMatches.filter((match) => match.stage === 'final').map((match) => resolveBracketMatch(tournament, match))} detailId={detailId} open={setDetailId} />
+            <Round title="Quarter-finals" when="6 October" pad="0" tournament={tournament} matches={bracketMatches.filter((match) => match.stage === 'quarter-final').map((match) => resolveBracketMatch(tournament, match))} detailId={detailId} open={setDetailId} />
+            <Round title="Semi-finals" when="11 October" pad="56px" tournament={tournament} matches={bracketMatches.filter((match) => match.stage === 'semi-final').map((match) => resolveBracketMatch(tournament, match))} detailId={detailId} open={setDetailId} />
+            <Round title="Final" when="16 October" pad="148px" tournament={tournament} matches={bracketMatches.filter((match) => match.stage === 'final').map((match) => resolveBracketMatch(tournament, match))} detailId={detailId} open={setDetailId} />
           </div>
           <div className="champion-strip">
             <h2>{tournament.championLabel}</h2>
@@ -149,7 +150,7 @@ function Stat({ value, label }: { value: string | number; label: string }) {
   return <div><strong>{value}</strong>{label}</div>;
 }
 
-function Round({ title, when, pad, matches, detailId, open }: { title: string; when: string; pad: string; matches: BracketMatch[]; detailId: string | null; open: (id: string) => void }) {
+function Round({ title, when, pad, tournament, matches, detailId, open }: { title: string; when: string; pad: string; tournament: Tournament; matches: BracketMatch[]; detailId: string | null; open: (id: string) => void }) {
   return (
     <section>
       <div className="round-head"><span>{title}</span><span>{when}</span></div>
@@ -157,9 +158,9 @@ function Round({ title, when, pad, matches, detailId, open }: { title: string; w
         {matches.length > 0 ? (
           matches.map((match) => (
             <button className={detailId === match.id ? 'bracket-card selected' : 'bracket-card'} key={match.id} onClick={() => open(match.id)}>
-              <div><strong className={match.aPlaceholder ? 'placeholder' : ''}>{match.aResolved}</strong><span>{match.status === 'played' ? setTotals(match)[0] : '-'}</span></div>
+              <div><BracketPlayer tournament={tournament} id={match.a} name={match.aResolved} placeholder={match.aPlaceholder} /><span>{match.status === 'played' ? setTotals(match)[0] : '-'}</span></div>
               <hr />
-              <div><strong className={match.bPlaceholder ? 'placeholder' : ''}>{match.bResolved}</strong><span>{match.status === 'played' ? setTotals(match)[1] : '-'}</span></div>
+              <div><BracketPlayer tournament={tournament} id={match.b} name={match.bResolved} placeholder={match.bPlaceholder} /><span>{match.status === 'played' ? setTotals(match)[1] : '-'}</span></div>
               <p>{match.day} {match.when} · {match.court}</p>
             </button>
           ))
@@ -169,6 +170,23 @@ function Round({ title, when, pad, matches, detailId, open }: { title: string; w
       </div>
     </section>
   );
+}
+
+function BracketPlayer({ tournament, id, name, placeholder }: { tournament: Tournament; id: string; name: string; placeholder: boolean }) {
+  const player = tournament.players.find((item) => item.id === id);
+  if (!player) return <strong className={placeholder ? 'placeholder' : ''}>{name}</strong>;
+  return (
+    <strong className="bracket-player">
+      <span>{player.flag}</span>
+      {player.name}
+      <small>{shortGroupLabel(tournament, player)}</small>
+    </strong>
+  );
+}
+
+function shortGroupLabel(tournament: Tournament, player: Player) {
+  const label = groupLabel(tournament, player.group);
+  return label.split(' - ')[0] ?? `Group ${player.group}`;
 }
 
 function Detail({ tournament, match, close }: { tournament: Tournament; match: DetailMatch; close: () => void }) {

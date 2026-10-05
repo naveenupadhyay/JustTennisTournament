@@ -577,6 +577,27 @@ h1 {
   font-weight: 600;
 }
 
+.bracket-player {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+}
+
+.bracket-player span {
+  color: inherit;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.bracket-player small {
+  color: var(--muted);
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 10px;
+  font-weight: 400;
+  white-space: nowrap;
+}
+
 .bracket-card strong.placeholder {
   color: var(--faint);
   font-weight: 400;

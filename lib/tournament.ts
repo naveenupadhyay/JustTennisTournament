@@ -123,6 +123,7 @@ const playerCountries: Record<string, { nationality: string; flag: string }> = {
   'Saboor Alvi': { nationality: 'India', flag: '🇮🇳' },
   'Sukesh Raj Suvarna': { nationality: 'India', flag: '🇮🇳' },
   'Swapnil Satapathy': { nationality: 'India', flag: '🇮🇳' },
+  'Vikas Vicky Bach': { nationality: 'India', flag: '🇮🇳' },
   'Vishal Wadhwa': { nationality: 'India', flag: '🇮🇳' },
 };
 

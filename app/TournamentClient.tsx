@@ -138,6 +138,9 @@ export default function TournamentClient() {
             <h2>{tournament.championLabel}</h2>
             <span>{tournament.championMeta}</span>
           </div>
+          <div className="champion-image">
+            <img src="/just-tennis-us-open-cup.png" alt="Just Tennis US Open Cup 2026 trophy artwork" />
+          </div>
         </section>
       )}
 

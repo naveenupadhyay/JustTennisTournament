@@ -100,7 +100,8 @@ export default function AdminClient() {
     }));
   }
 
-  function addMatch() {
+  async function addMatch() {
+    if (saving) return;
     if (!newMatch.a || !newMatch.b || newMatch.a === newMatch.b) {
       setMessage('Choose two different players before adding the match.');
       return;
@@ -148,9 +149,10 @@ export default function AdminClient() {
       when: newMatch.when,
       status: winner !== null ? 'played' : 'scheduled',
     };
-    setTournament((current) => ({ ...current, matches: [...current.matches, match] }));
+    const nextTournament = { ...tournament, matches: [...tournament.matches, match] };
+    setTournament(nextTournament);
     setNewMatch(blankMatch);
-    setMessage('Match added. Use Save all changes to update the public site.');
+    await saveTournament(nextTournament, 'Match added and public site updated.');
   }
 
   function groupRuleNotice() {
@@ -171,18 +173,22 @@ export default function AdminClient() {
     return `${playerName(tournament, newMatch.a)}: ${playerACount}/${maxMatches} group matches. ${playerName(tournament, newMatch.b)}: ${playerBCount}/${maxMatches} group matches.`;
   }
 
-  async function save() {
+  async function saveTournament(nextTournament: Tournament, successMessage: string) {
     setSaving(true);
     setMessage('Saving changes');
     const response = await fetch('/api/tournament', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tournament }),
+      body: JSON.stringify({ tournament: nextTournament }),
     });
     const data = (await response.json()) as TournamentResponse;
     setTournament(data.tournament);
     setSaving(false);
-    setMessage('Saved. The public site is updated.');
+    setMessage(successMessage);
+  }
+
+  async function save() {
+    await saveTournament(tournament, 'Saved. The public site is updated.');
   }
 
   const activeGroupRuleNotice = groupRuleNotice();
@@ -273,7 +279,7 @@ export default function AdminClient() {
           <label><span>Day</span><input value={newMatch.day} onChange={(event) => setNewMatch((current) => ({ ...current, day: event.target.value }))} /></label>
           <label><span>Time</span><input value={newMatch.when} onChange={(event) => setNewMatch((current) => ({ ...current, when: event.target.value }))} /></label>
           <label><span>Court</span><input value={newMatch.court} onChange={(event) => setNewMatch((current) => ({ ...current, court: event.target.value }))} /></label>
-          <button onClick={addMatch}>Add match to schedule</button>
+          <button disabled={saving} onClick={addMatch}>{saving ? 'Saving' : 'Add match to schedule'}</button>
         </div>
       </section>
 

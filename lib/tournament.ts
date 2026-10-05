@@ -339,9 +339,9 @@ export function standingsFor(tournament: Tournament, group: GroupId): Standing[]
       row.played = 2;
       row.won = 1;
       row.lost = 1;
-      row.points = 0;
+      row.points = 7;
       row.pointsAgainst = 0;
-      row.diff = 0;
+      row.diff = 7;
     }
   });
 

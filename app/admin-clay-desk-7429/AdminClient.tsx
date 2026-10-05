@@ -8,7 +8,6 @@ import {
   defaultTournament,
   groupLabel,
   groupStageMatchCount,
-  groupStagePairExists,
   leaguePointsForSets,
   playerName,
   parseScoreSets,
@@ -113,10 +112,6 @@ export default function AdminClient() {
         setMessage(`Choose two players from ${groupLabel(tournament, newMatch.group)}.`);
         return;
       }
-      if (groupStagePairExists(tournament, newMatch.group, newMatch.a, newMatch.b)) {
-        setMessage(`${playerName(tournament, newMatch.a)} and ${playerName(tournament, newMatch.b)} already have a ${groupLabel(tournament, newMatch.group)} match. Each pair plays once.`);
-        return;
-      }
       const playerACount = groupStageMatchCount(tournament, newMatch.group, newMatch.a);
       const playerBCount = groupStageMatchCount(tournament, newMatch.group, newMatch.b);
       const maxMatches = roundRobinMaxMatchesForPlayer(tournament, newMatch.group);
@@ -159,10 +154,7 @@ export default function AdminClient() {
     if (newMatch.stage !== 'round-robin') return null;
     const maxMatches = roundRobinMaxMatchesForPlayer(tournament, newMatch.group);
     if (!newMatch.a || !newMatch.b || newMatch.a === newMatch.b) {
-      return `Group stage rule: each player can have ${maxMatches} matches, one against every other player in the group.`;
-    }
-    if (groupStagePairExists(tournament, newMatch.group, newMatch.a, newMatch.b)) {
-      return `${playerName(tournament, newMatch.a)} and ${playerName(tournament, newMatch.b)} are already paired in ${groupLabel(tournament, newMatch.group)}.`;
+      return `Group stage rule: each player can have ${maxMatches} total matches in this group. Repeat pairings are allowed.`;
     }
     const playerACount = groupStageMatchCount(tournament, newMatch.group, newMatch.a);
     const playerBCount = groupStageMatchCount(tournament, newMatch.group, newMatch.b);
@@ -197,8 +189,7 @@ export default function AdminClient() {
     !!newMatch.a &&
     !!newMatch.b &&
     newMatch.a !== newMatch.b &&
-    (groupStagePairExists(tournament, newMatch.group, newMatch.a, newMatch.b) ||
-      groupStageMatchCount(tournament, newMatch.group, newMatch.a) >= roundRobinMaxMatchesForPlayer(tournament, newMatch.group) ||
+    (groupStageMatchCount(tournament, newMatch.group, newMatch.a) >= roundRobinMaxMatchesForPlayer(tournament, newMatch.group) ||
       groupStageMatchCount(tournament, newMatch.group, newMatch.b) >= roundRobinMaxMatchesForPlayer(tournament, newMatch.group));
 
   return (

@@ -1,6 +1,6 @@
 import { Redis } from '@upstash/redis';
-import { NextRequest, NextResponse } from 'next/server';
-import { Tournament, defaultTournament, sanitizeTournament } from '@/lib/tournament';
+import { NextResponse } from 'next/server';
+import { defaultTournament, sanitizeTournament } from '@/lib/tournament';
 
 const STORE_ID = 'location-groups-v11';
 let memoryTournament = defaultTournament;
@@ -25,11 +25,6 @@ export async function GET() {
   return NextResponse.json({ tournament: memoryTournament });
 }
 
-export async function PUT(request: NextRequest) {
-  const body = (await request.json()) as { tournament: Tournament };
-  const tournament = sanitizeTournament(body.tournament);
-  const redis = getRedis();
-  if (redis) await redis.set(STORE_ID, tournament);
-  else memoryTournament = tournament;
-  return NextResponse.json({ tournament });
+export async function PUT() {
+  return NextResponse.json({ error: 'Tournament editing is disabled.' }, { status: 403 });
 }

@@ -35,16 +35,16 @@ export default function TournamentClient() {
       .catch(() => setTournament(defaultTournament));
   }, []);
 
-  const bracketMatches = tournament.matches.filter((match) => !match.group);
+  const bracketMatches = useMemo(() => lockedBracketMatches(tournament), [tournament]);
   const playedCount = tournament.matches.filter((match) => match.group && match.status === 'played').length;
   const totalGroupCapacity = totalRoundRobinCapacity(tournament);
   const qualifierCount = groups.reduce((total, gid) => total + Math.min(2, tournament.players.filter((player) => player.group === gid).length), 0);
   const detail = useMemo<DetailMatch | null>(() => {
     if (!detailId) return null;
-    const match = tournament.matches.find((item) => item.id === detailId);
+    const match = tournament.matches.find((item) => item.id === detailId) ?? bracketMatches.find((item) => item.id === detailId);
     if (!match) return null;
     return match.group ? match : { ...resolveBracketMatch(tournament, match), isBracket: true };
-  }, [detailId, tournament]);
+  }, [bracketMatches, detailId, tournament]);
 
   function openTab(next: 'groups' | 'bracket') {
     setTab(next);
@@ -151,6 +151,53 @@ export default function TournamentClient() {
 
 function Stat({ value, label }: { value: string | number; label: string }) {
   return <div><strong>{value}</strong>{label}</div>;
+}
+
+function lockedBracketMatches(tournament: Tournament) {
+  return [
+    ...tournament.matches.filter((match) => !match.group && match.stage !== 'semi-final'),
+    ...lockedSemiFinals(tournament),
+  ];
+}
+
+function lockedSemiFinals(tournament: Tournament): Match[] {
+  const playerId = (name: string) => tournament.players.find((player) => player.name.trim().toLowerCase() === name.toLowerCase())?.id ?? name;
+  return [
+    {
+      id: 'SF1',
+      stage: 'semi-final',
+      slot: 'SF1 · Dominique vs Chirag',
+      a: playerId('Dominique Collin'),
+      b: playerId('Chirag Patel'),
+      sets: [[null, null], [null, null], [null, null]],
+      finalScore: '',
+      pointsA: null,
+      pointsB: null,
+      winner: null,
+      mins: null,
+      court: 'Centre Court',
+      day: '11 October',
+      when: '',
+      status: 'scheduled',
+    },
+    {
+      id: 'SF2',
+      stage: 'semi-final',
+      slot: 'SF2 · Syed vs TBD',
+      a: playerId('Syed Mohammad Alvi'),
+      b: 'TBD',
+      sets: [[null, null], [null, null], [null, null]],
+      finalScore: '',
+      pointsA: null,
+      pointsB: null,
+      winner: null,
+      mins: null,
+      court: 'Centre Court',
+      day: '11 October',
+      when: '',
+      status: 'scheduled',
+    },
+  ];
 }
 
 function Round({ title, when, pad, tournament, matches, detailId, open }: { title: string; when: string; pad: string; tournament: Tournament; matches: BracketMatch[]; detailId: string | null; open: (id: string) => void }) {

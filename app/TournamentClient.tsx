@@ -183,9 +183,9 @@ function lockedSemiFinals(tournament: Tournament): Match[] {
     {
       id: 'SF2',
       stage: 'semi-final',
-      slot: 'SF2 · Syed vs TBD',
+      slot: 'SF2 · Syed vs Shyam',
       a: playerId('Syed Mohammad Alvi'),
-      b: 'TBD',
+      b: playerId('Shyam Menon'),
       sets: [[null, null], [null, null], [null, null]],
       finalScore: '',
       pointsA: null,

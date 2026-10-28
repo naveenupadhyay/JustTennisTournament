@@ -73,6 +73,11 @@ export default function TournamentClient() {
         </div>
       </header>
 
+      <section className="event-host" aria-label="Event host">
+        <img src="/naveen-host.png" alt="Naveen Upadhyay" />
+        <p>This event is brought to you by <strong>Naveen</strong></p>
+      </section>
+
       <nav className="tabs" aria-label="Tournament views">
         <button className={tab === 'groups' ? 'active' : ''} onClick={() => openTab('groups')}>Groups</button>
         <button className={tab === 'bracket' ? 'active' : ''} onClick={() => openTab('bracket')}>Knockout bracket</button>

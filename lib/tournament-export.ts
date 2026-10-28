@@ -121,7 +121,7 @@ function buildTournamentSnapshotHtml(tournament: Tournament) {
           </div>
           <p class="eyebrow">${escapeHtml(tournament.club)}</p>
           <h1>${escapeHtml(tournament.title)}</h1>
-          <p class="event-dates">Sep 1 to Oct 1, 2026</p>
+          <p class="event-dates">Sep 1 to Nov 1, 2026</p>
         </div>
         <div class="snapshot-summary">
           <div class="progress-card">

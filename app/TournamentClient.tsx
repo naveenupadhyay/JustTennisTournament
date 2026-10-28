@@ -25,7 +25,7 @@ type TournamentResponse = { tournament: Tournament };
 
 export default function TournamentClient() {
   const [tournament, setTournament] = useState<Tournament>(defaultTournament);
-  const [tab, setTab] = useState<'groups' | 'bracket'>('bracket');
+  const [tab, setTab] = useState<'groups' | 'bracket'>('groups');
   const [detailId, setDetailId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -61,7 +61,7 @@ export default function TournamentClient() {
           </div>
           <div className="eyebrow">{tournament.club}</div>
           <h1>{tournament.title}</h1>
-          <p className="event-dates">Sep 1 to Oct 1, 2026</p>
+          <p className="event-dates">Sep 1 to Nov 1, 2026</p>
         </div>
         <div className="header-tools">
           <div className="stats">
